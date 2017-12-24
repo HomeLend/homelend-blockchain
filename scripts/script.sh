@@ -124,7 +124,7 @@ installChaincode () {
 	setGlobals $PEER
 	for chaincode in ${CHAINCODES[*]}; do
         #peer chaincode install -n $chaincode -v 1.0 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED  -p $chaincode >&log.txt
-        peer chaincode install -n $chaincode -v 1.0 --cafile $ORDERER_CA  -p $chaincode >&log.txt
+        peer chaincode install -n $chaincode -v v1 --cafile $ORDERER_CA  --tls $CORE_PEER_TLS_ENABLED -p $chaincode >&log.txt
         res=$?
         cat log.txt
         verifyResult $res "Chaincode installation on remote peer PEER$PEER has Failed"
@@ -138,11 +138,10 @@ instantiateChaincode () {
 	setGlobals $PEER
 	# while 'peer chaincode' command can get the orderer endpoint from the peer (if join was successful),
 	# lets supply it directly as we know it using the "-o" option
-    for chaincode in ${CHAINCODES[*]};
-    do
-        echo "===================== $chaincode Instantiation on PEER$PEER on channel '$CHANNEL_NAME' is in process ===================== "
-        peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME --tls true  -n $chaincode -v 1.0 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member')"
-    done
+
+    echo "===================== $chaincode Instantiation on PEER$PEER on channel '$CHANNEL_NAME' is in process ===================== "
+    peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME -n $CHAINCODE -v v1 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member')"
+
 	res=$?
 	cat log.txt
 	verifyResult $res "Chaincode instantiation on PEER$PEER on channel '$CHANNEL_NAME' failed"
@@ -203,18 +202,25 @@ joinChannel
 ## Set the anchor peers for each org in the channel
 echo "Updating anchor peers for pocbank..."
 updateAnchorPeers 0
+sleep 2
 echo "Updating anchor peers for pocinsurance..."
 updateAnchorPeers 1
+sleep 2
 echo "Updating anchor peers for pocappraiser..."
 updateAnchorPeers 2
+sleep 2
 echo "Updating anchor peers for pocgovernment..."
 updateAnchorPeers 3
+sleep 2
 echo "Updating anchor peers for pocbuyer..."
 updateAnchorPeers 4
+sleep 2
 echo "Updating anchor peers for pocseller..."
 updateAnchorPeers 5
+sleep 2
 echo "Updating anchor peers for pochomelend..."
 updateAnchorPeers 6
+sleep 2
 
 echo "Installing chaincode on pocbank/peer0..."
 installChaincode 0

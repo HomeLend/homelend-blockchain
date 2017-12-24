@@ -265,14 +265,14 @@ services:
       - CORE_PEER_ID=peer0.pocbank.homelend.io
       - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbank.homelend.io:7051
-      - CORE_PEER_LOCALMSPID=NoorBankMSP
+      - CORE_PEER_LOCALMSPID=POCBankMSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocbank/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocbank/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocbank/tls/ca.crt
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbNoorBank:5984
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCBank:5984
     volumes:
         - /etc/localtime:/etc/localtime:ro
         - /var/run/:/host/var/run/
@@ -307,7 +307,7 @@ services:
       - CORE_PEER_ID=peer0.pocinsurance.homelend.io
       - CORE_PEER_ADDRESS=peer0.pocinsurance.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocinsurance.homelend.io:7051
-      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_LOCALMSPID=POCInsuranceMSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocinsurance/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocinsurance/tls/server.crt
@@ -348,7 +348,7 @@ services:
       - CORE_PEER_ID=peer0.pocappraiser.homelend.io
       - CORE_PEER_ADDRESS=peer0.pocappraiser.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocappraiser.homelend.io:7051
-      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_LOCALMSPID=POCAppraiserMSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocappraiser/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocappraiser/tls/server.crt
@@ -389,7 +389,7 @@ services:
         - CORE_PEER_ID=peer0.pocgovernment.homelend.io
         - CORE_PEER_ADDRESS=peer0.pocgovernment.homelend.io:7051
         - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocgovernment.homelend.io:7051
-        - CORE_PEER_LOCALMSPID=MashreqBankMSP
+        - CORE_PEER_LOCALMSPID=POCGovernmentMSP
         - CORE_PEER_TLS_ENABLED=true
         - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocgovernment/tls/server.key
         - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocgovernment/tls/server.crt
@@ -430,7 +430,7 @@ services:
       - CORE_PEER_ID=peer0.pocbuyer.homelend.io
       - CORE_PEER_ADDRESS=peer0.pocbuyer.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbuyer.homelend.io:7051
-      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_LOCALMSPID=POCBuyerMSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocbuyer/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocbuyer/tls/server.crt
@@ -471,7 +471,7 @@ services:
       - CORE_PEER_ID=peer0.pocseller.homelend.io
       - CORE_PEER_ADDRESS=peer0.pocseller.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocseller.homelend.io:7051
-      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_LOCALMSPID=POCSellerMSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocseller/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocseller/tls/server.crt
@@ -512,7 +512,7 @@ services:
       - CORE_PEER_ID=peer0.pochomelend.homelend.io
       - CORE_PEER_ADDRESS=peer0.pochomelend.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pochomelend.homelend.io:7051
-      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_LOCALMSPID=POCHomelendMSP
       - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocseller/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocseller/tls/server.crt
@@ -546,7 +546,7 @@ services:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
       - CORE_LOGGING_LEVEL=DEBUG
       - CORE_PEER_ID=cli
-      - CORE_PEER_LOCALMSPID=NoorBankMSP
+      - CORE_PEER_LOCALMSPID=POCBankMSP
       - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/users/Admin@pocbank.homelend.io/msp
       - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
       - CORE_PEER_TLS_ENABLED=true
@@ -554,7 +554,7 @@ services:
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/ca.crt
     working_dir: /var/hyperledger/cli
-    #command: /bin/bash -c './scripts/script.sh ${CHANNEL_NAME}; sleep $TIMEOUT'
+    command: /bin/bash -c './scripts/script.sh ${CHANNEL_NAME}; sleep $TIMEOUT'
     volumes:
         - ./channel-artifacts:/var/hyperledger/cli/channel-artifacts
         - ./crypto-config:/var/hyperledger/cli/crypto/
