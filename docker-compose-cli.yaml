@@ -3,7 +3,7 @@ version: '2'
 services:
   couchdbPOCBank:
     container_name: couchdbPOCBank
-    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    image: hyperledger/fabric-couchdb:x86_64-1.1.0-preview
     ports:
       - "5984:5984"
     environment:
@@ -13,7 +13,7 @@ services:
 
   couchdbPOCInsurance:
     container_name: couchdbPOCInsurance
-    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    image: hyperledger/fabric-couchdb:x86_64-1.1.0-preview
     ports:
       - "6984:5984"
     environment:
@@ -23,7 +23,7 @@ services:
 
   couchdbPOCAppraiser:
     container_name: couchdbPOCAppraiser
-    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    image: hyperledger/fabric-couchdb:x86_64-1.1.0-preview
     ports:
       - "7984:5984"
     environment:
@@ -33,7 +33,7 @@ services:
 
   couchdbPOCGovernment:
     container_name: couchdbPOCGovernment
-    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    image: hyperledger/fabric-couchdb:x86_64-1.1.0-preview
     ports:
       - "8984:5984"
     environment:
@@ -43,7 +43,7 @@ services:
 
   couchdbPOCHomelend:
     container_name: couchdbPOCHomelend
-    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    image: hyperledger/fabric-couchdb:x86_64-1.1.0-preview
     ports:
       - "9984:5984"
     environment:
@@ -53,7 +53,7 @@ services:
 
   couchdbPOCBuyer:
     container_name: couchdbPOCBuyer
-    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    image: hyperledger/fabric-couchdb:x86_64-1.1.0-preview
     ports:
       - "10984:5984"
     environment:
@@ -63,7 +63,7 @@ services:
 
   couchdbPOCSeller:
     container_name: couchdbPOCSeller
-    image: hyperledger/fabric-couchdb:x86_64-1.0.5
+    image: hyperledger/fabric-couchdb:x86_64-1.1.0-preview
     ports:
       - "11984:5984"
     environment:
@@ -73,7 +73,7 @@ services:
 
   orderer.homelend.io:
     container_name: orderer.homelend.io
-    image: hyperledger/fabric-orderer:x86_64-1.0.5
+    image: hyperledger/fabric-orderer:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       - ORDERER_GENERAL_LOGLEVEL=debug
@@ -106,7 +106,7 @@ services:
 
   ca.pocbank.homelend.io:
     container_name: ca.pocbank.homelend.io
-    image: hyperledger/fabric-ca:x86_64-1.0.5
+    image: hyperledger/fabric-ca:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       - FABRIC_CA_HOME=/var/hyperledger/ca-pocbank
@@ -129,7 +129,7 @@ services:
 
   ca.pocinsurance.homelend.io:
       container_name: ca.pocinsurance.homelend.io
-      image: hyperledger/fabric-ca:x86_64-1.0.5
+      image: hyperledger/fabric-ca:x86_64-1.1.0-preview
       environment:
         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
         - FABRIC_CA_HOME=/var/hyperledger/ca-pocinsurance
@@ -151,7 +151,7 @@ services:
 
   ca.pocappraiser.homelend.io:
       container_name: ca.pocappraiser.homelend.io
-      image: hyperledger/fabric-ca:x86_64-1.0.5
+      image: hyperledger/fabric-ca:x86_64-1.1.0-preview
       environment:
         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
         - FABRIC_CA_HOME=/var/hyperledger/ca-pocappraiser
@@ -173,7 +173,7 @@ services:
 
   ca.pocgovernment.homelend.io:
       container_name: ca.pocgovernment.homelend.io
-      image: hyperledger/fabric-ca:x86_64-1.0.5
+      image: hyperledger/fabric-ca:x86_64-1.1.0-preview
       environment:
         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
         - FABRIC_CA_HOME=/var/hyperledger/ca-pocgovernment
@@ -195,7 +195,7 @@ services:
 
   ca.pochomelend.homelend.io:
         container_name: ca.pochomelend.homelend.io
-        image: hyperledger/fabric-ca:x86_64-1.0.5
+        image: hyperledger/fabric-ca:x86_64-1.1.0-preview
         environment:
           - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
           - FABRIC_CA_HOME=/var/hyperledger/ca-pochomelend
@@ -217,7 +217,7 @@ services:
 
   ca.pocbuyer.homelend.io:
         container_name: ca.pocbuyer.homelend.io
-        image: hyperledger/fabric-ca:x86_64-1.0.5
+        image: hyperledger/fabric-ca:x86_64-1.1.0-preview
         environment:
           - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
           - FABRIC_CA_HOME=/var/hyperledger/ca-pocbuyer
@@ -239,7 +239,7 @@ services:
 
   ca.pocseller.homelend.io:
         container_name: ca.pocseller.homelend.io
-        image: hyperledger/fabric-ca:x86_64-1.0.5
+        image: hyperledger/fabric-ca:x86_64-1.1.0-preview
         environment:
           - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
           - FABRIC_CA_HOME=/var/hyperledger/ca-pocseller
@@ -261,7 +261,7 @@ services:
 
   peer0.pocbank.homelend.io:
     container_name: peer0.pocbank.homelend.io
-    image: hyperledger/fabric-peer:x86_64-1.0.5
+    image: hyperledger/fabric-peer:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       # Making peer work as CLI
@@ -303,7 +303,7 @@ services:
 
   peer0.pocinsurance.homelend.io:
     container_name: peer0.pocinsurance.homelend.io
-    image: hyperledger/fabric-peer:x86_64-1.0.5
+    image: hyperledger/fabric-peer:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       # Making peer work as CLI
@@ -344,7 +344,7 @@ services:
 
   peer0.pocappraiser.homelend.io:
     container_name: peer0.pocappraiser.homelend.io
-    image: hyperledger/fabric-peer:x86_64-1.0.5
+    image: hyperledger/fabric-peer:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       # Making peer work as CLI
@@ -385,7 +385,7 @@ services:
 
   peer0.pocgovernment.homelend.io:
       container_name: peer0.pocgovernment.homelend.io
-      image: hyperledger/fabric-peer:x86_64-1.0.5
+      image: hyperledger/fabric-peer:x86_64-1.1.0-preview
       environment:
         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
         # Making peer work as CLI
@@ -426,7 +426,7 @@ services:
 
   peer0.pocbuyer.homelend.io:
     container_name: peer0.pocbuyer.homelend.io
-    image: hyperledger/fabric-peer:x86_64-1.0.5
+    image: hyperledger/fabric-peer:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       # Making peer work as CLI
@@ -467,7 +467,7 @@ services:
 
   peer0.pocseller.homelend.io:
     container_name: peer0.pocseller.homelend.io
-    image: hyperledger/fabric-peer:x86_64-1.0.5
+    image: hyperledger/fabric-peer:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       # Making peer work as CLI
@@ -508,7 +508,7 @@ services:
 
   peer0.pochomelend.homelend.io:
     container_name: peer0.pochomelend.homelend.io
-    image: hyperledger/fabric-peer:x86_64-1.0.5
+    image: hyperledger/fabric-peer:x86_64-1.1.0-preview
     environment:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       # Making peer work as CLI
@@ -549,7 +549,7 @@ services:
 
   cli:
     container_name: cli
-    image: hyperledger/fabric-tools:x86_64-1.0.5
+    image: hyperledger/fabric-tools:x86_64-1.1.0-preview
     tty: true
     environment:
       - CHAINCODE=lending_chaincode
@@ -573,10 +573,11 @@ services:
     volumes:
         - ./channel-artifacts:/var/hyperledger/cli/channel-artifacts
         - ./crypto-config:/var/hyperledger/cli/crypto/
-        - ./chaincode/:/var/hyperledger/cli/gopath/src
         - ./scripts:/var/hyperledger/cli/scripts/
         - /etc/localtime:/etc/localtime:ro
         - /var/run/:/host/var/run/
+        - /Users/kanattulbassiyev/gopath/:/var/hyperledger/cli/gopath/src/
+        - ./chaincode/lending_chaincode/:/var/hyperledger/cli/gopath/src/lending_chaincode/
     depends_on:
       - peer0.pocbank.homelend.io
       - peer0.pocappraiser.homelend.io

@@ -1,12 +1,10 @@
-#Installation process
+# Executing process
 CHANNEL_NAME=mainchannel TIMEOUT=50000 docker-compose -f docker-compose-cli.yaml up -d --force-recreate
 
-#companies_chaincode
-CHAINCODE=lending_chaincode
-peer chaincode install -n $CHAINCODE -v 1.0 -p github.com/hyperledger/fabric/examples/chaincode/go/companies_chaincode
-sleep 2
-peer chaincode instantiate -o orderer.homelend.io:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CHAINCODE -v 1.0 -c '{"Args":["init"]}' -P "OR('NoorBankMSP.member','MashreqBankMSP.member')"
-sleep 10
+# Installing the chaincode
+peer chaincode install -n test1 -v v1 -p $CHAINCODE
+
+peer chaincode instantiate -o orderer.homelend.io:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n test1 -v v1 -c '{"Args":["init"]}' -P "OR('POCBankMSP.member','POCInsuranceMSP.member')"
 
 peer chaincode invoke -o orderer.homelend.io:7050  --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $CHAINCODE -c '{"Args":["create", "{\"Hash\":\"hash_\",\"FlatNumber\":\"1\",\"HouseNumber\":\"1\",\"Street\":\"Main Street\",\"Owner\":\"Kanat Tulbasiyev\", \"Amount\":\"100\", \"Active\":true,\"Timestamp\":111}"]}'
 

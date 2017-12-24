@@ -95,13 +95,13 @@ echo
 
 ## Sometimes Join takes time hence RETRY atleast for 5 times
 joinWithRetry () {
-	peer channel join -b $CHANNEL_NAME.block  >&log.txt
+	peer channel join -b $CHANNEL_NAME.block >&log.txt
 	res=$?
 	cat log.txt
 	if [ $res -ne 0 -a $COUNTER -lt $MAX_RETRY ]; then
 		COUNTER=` expr $COUNTER + 1`
 		echo "PEER$1 failed to join the channel, Retry after 2 seconds"
-		sleep 2
+		sleep 5
 		joinWithRetry $1
 	else
 		COUNTER=1
@@ -237,11 +237,11 @@ installChaincode 5
 echo "Installing chaincode on pochomelend/peer0..."
 installChaincode 6
 
-echo "Instantiating chaincode on org_tristar/peer0..."
+echo "Instantiating chaincode on pocbank/peer0..."
 instantiateChaincode 0
 
 echo
-echo "========= All GOOD, Cheque network execution completed =========== "
+echo "========= All GOOD, Network execution completed =========== "
 echo
 
 exit 0
