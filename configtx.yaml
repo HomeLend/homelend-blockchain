@@ -1,0 +1,256 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+Profiles:
+
+    MainOrdererGenesis:
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+        Consortiums:
+            SampleConsortium:
+                Organizations:
+                    - *POCBank
+                    - *POCInsurance
+                    - *POCAppraiser
+                    - *POCGovernment
+                    - *POCHomelend
+                    - *POCSeller
+                    - *POCBuyer
+    MainChannel:
+        Consortium: SampleConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *POCBank
+                - *POCInsurance
+                - *POCAppraiser
+                - *POCGovernment
+                - *POCHomelend
+                - *POCSeller
+                - *POCBuyer
+                
+
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+
+    # SampleOrg defines an MSP using the sampleconfig.  It should never be used
+    # in production but may be used as a template for other definitions
+    - &OrdererOrg
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: OrdererMSP
+
+        # ID to load the MSP definition as
+        ID: OrdererMSP
+
+        # MSPDir is the filesystem path which contains the MSP configuration
+        MSPDir: crypto-config/ordererOrganizations/homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+    - &POCBank
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCBankMSP
+
+        # ID to load the MSP definition as
+        ID: POCBankMSP
+
+        MSPDir: crypto-config/peerOrganizations/pocbank.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.pocbank.homelend.io
+              Port: 7051
+    - &POCInsurance
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCInsuranceMSP
+
+        # ID to load the MSP definition as
+        ID: POCInsuranceMSP
+
+        MSPDir: crypto-config/peerOrganizations/pocinsurance.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.pocinsurance.homelend.io
+              Port: 7051
+    - &POCAppraiser
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCAppraiserMSP
+
+        # ID to load the MSP definition as
+        ID: POCAppraiserMSP
+
+        MSPDir: crypto-config/peerOrganizations/pocappraiser.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.pocappraiser.homelend.io
+              Port: 7051
+    - &POCGovernment
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCGovernmentMSP
+
+        # ID to load the MSP definition as
+        ID: POCGovernmentMSP
+
+        MSPDir: crypto-config/peerOrganizations/pocgovernment.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.pocgovernment.homelend.io
+              Port: 7051  
+    - &POCHomelend
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCHomelendMSP
+
+        # ID to load the MSP definition as
+        ID: POCHomelendMSP
+
+        MSPDir: crypto-config/peerOrganizations/pochomelend.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.pochomelend.homelend.io
+              Port: 7051        
+    - &POCBuyer
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCBuyerMSP
+
+        # ID to load the MSP definition as
+        ID: POCBuyerMSP
+
+        MSPDir: crypto-config/peerOrganizations/pocbuyer.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.pocbuyer.homelend.io
+              Port: 7051
+    - &POCSeller
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCSellerMSP
+
+        # ID to load the MSP definition as
+        ID: POCSellerMSP
+
+        MSPDir: crypto-config/peerOrganizations/pocseller.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.pocseller.homelend.io
+              Port: 7051
+          
+
+################################################################################
+#
+#   SECTION: Orderer
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for orderer related parameters
+#
+################################################################################
+Orderer: &OrdererDefaults
+
+    # Orderer Type: The orderer implementation to start
+    # Available types are "solo" and "kafka"
+    OrdererType: solo
+
+    Addresses:
+        - orderer.homelend.io:7050
+
+    # Batch Timeout: The amount of time to wait before creating a batch
+    BatchTimeout: 2s
+
+    # Batch Size: Controls the number of messages batched into a block
+    BatchSize:
+
+        # Max Message Count: The maximum number of messages to permit in a batch
+        MaxMessageCount: 10
+
+        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
+        # the serialized messages in a batch.
+        AbsoluteMaxBytes: 98 MB
+
+        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
+        # the serialized messages in a batch. A message larger than the preferred
+        # max bytes will result in a batch larger than preferred max bytes.
+        PreferredMaxBytes: 512 KB
+
+    Kafka:
+        # Brokers: A list of Kafka brokers to which the orderer connects
+        # NOTE: Use IP:port notation
+        Brokers:
+            - 127.0.0.1:9092
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the orderer side of the network
+    Organizations:
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   - This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the application side of the network
+    Organizations:

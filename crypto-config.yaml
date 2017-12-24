@@ -1,0 +1,78 @@
+OrdererOrgs:
+  - Name: Orderer
+    Domain: homelend.io
+    Specs:
+      - Hostname: orderer
+
+PeerOrgs:
+  - Name: POCBank
+    Domain: pocbank.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
+
+  - Name: POCInsurance
+    Domain: pocinsrurance.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
+  - Name: POCAppraiser
+    Domain: pocappraiser.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
+  - Name: POCGovernment
+    Domain: pocgovernment.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
+  - Name: POCHomelend
+    Domain: pochomelend.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
+  - Name: POCBuyer
+    Domain: pocbuyer.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
+  - Name: POCSeller
+    Domain: pocseller.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1

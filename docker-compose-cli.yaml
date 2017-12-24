@@ -1,0 +1,538 @@
+version: '2'
+
+services:
+  couchdbPOCBank:
+    container_name: couchdbPOCBank
+    image: hyperledger/fabric-couchdb:x86_64-1.0.2
+    ports:
+      - "5984:5984"
+    environment:
+      DB_URL: http://localhost:5984/peer_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  couchdbPOCInsurance:
+    container_name: couchdbPOCInsurance
+    image: hyperledger/fabric-couchdb:x86_64-1.0.2
+    ports:
+      - "6984:5984"
+    environment:
+      DB_URL: http://localhost:5984/peer_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  couchdbAppraiser:
+    container_name: couchdbAppraiser
+    image: hyperledger/fabric-couchdb:x86_64-1.0.2
+    ports:
+      - "7984:5984"
+    environment:
+      DB_URL: http://localhost:5984/peer_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  couchdbGovernment:
+    container_name: couchdbGovernment
+    image: hyperledger/fabric-couchdb:x86_64-1.0.2
+    ports:
+      - "8984:5984"
+    environment:
+      DB_URL: http://localhost:5984/peer_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  couchdbHomelend:
+    container_name: couchdbHomelend
+    image: hyperledger/fabric-couchdb:x86_64-1.0.2
+    ports:
+      - "9984:5984"
+    environment:
+      DB_URL: http://localhost:5984/peer_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  couchdbBuyer:
+    container_name: couchdbBuyer
+    image: hyperledger/fabric-couchdb:x86_64-1.0.2
+    ports:
+      - "10984:5984"
+    environment:
+      DB_URL: http://localhost:5984/peer_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  couchdbSeller:
+    container_name: couchdbSeller
+    image: hyperledger/fabric-couchdb:x86_64-1.0.2
+    ports:
+      - "11984:5984"
+    environment:
+      DB_URL: http://localhost:5984/peer_db
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  orderer.homelend.io:
+    container_name: orderer.homelend.io
+    image: hyperledger/fabric-orderer:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/var/hyperledger/orderer/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+
+    working_dir: /var/hyperledger/orderer
+    command: orderer
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./channel-artifacts/genesis.block:/var/hyperledger/orderer/genesis.block
+      - ./crypto-config/ordererOrganizations/homelend.io/orderers/orderer.homelend.io/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/homelend.io/orderers/orderer.homelend.io/tls/:/var/hyperledger/orderer/tls
+      - ./crypto-config/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io:/var/hyperledger/peerpocbank
+      - ./crypto-config/peerOrganizations/pocappraiser.homelend.io/peers/peer0.pocappraiser.homelend.io:/var/hyperledger/peerpocappraiser
+      - ./crypto-config/peerOrganizations/pocinsurance.homelend.io/peers/peer0.pocinsurance.homelend.io:/var/hyperledger/peerpocinsurance
+      - ./crypto-config/peerOrganizations/pocgovernment.homelend.io/peers/peer0.pocgovernment.homelend.io:/var/hyperledger/peerpocgovernment
+      - ./crypto-config/peerOrganizations/pochomelend.homelend.io/peers/peer0.pochomelend.homelend.io:/var/hyperledger/peerpochomelend
+      - ./crypto-config/peerOrganizations/pocbuyer.homelend.io/peers/peer0.pocbuyer.homelend.io:/var/hyperledger/peerpocbuyer
+      - ./crypto-config/peerOrganizations/pocseller.homelend.io/peers/peer0.pocseller.homelend.io:/var/hyperledger/peerpocseller
+    ports:
+      - 7050:7050
+
+  ca.pocbank.homelend.io:
+    container_name: ca.pocbank.homelend.io
+    image: hyperledger/fabric-ca:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      - FABRIC_CA_HOME=/var/hyperledger/ca-pocbank
+      - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocbank/ca/ca.pocbank.homelend.io-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbank/ca/307c71afe334ebcf1e87fcc87a3889aef3ab4db07cfc2718f599d83737f928ee_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocbank/ca/ca.pocbank.homelend.io-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbank/ca/307c71afe334ebcf1e87fcc87a3889aef3ab4db07cfc2718f599d83737f928ee_sk
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start --config ./config/ca-pocbank.yaml -b admin:adminpw -d'
+    working_dir: /var/hyperledger/ca-pocbank
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./crypto-config/peerOrganizations/pocbank.homelend.io/ca/:/var/hyperledger/ca-pocbank/ca
+      - ./crypto-config/peerOrganizations/pocbank.homelend.io/tlsca/:/var/hyperledger/ca-pocbank/tlsca
+      - ./ca/ca-pocbank.yaml:/var/hyperledger/ca-pocbank/config/ca-pocbank.yaml:ro
+
+  ca.pocinsurance.homelend.io:
+      container_name: ca.pocinsurance.homelend.io
+      image: hyperledger/fabric-ca:x86_64-1.0.2
+      environment:
+        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+        - FABRIC_CA_HOME=/var/hyperledger/ca-pocinsurance
+        - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocinsurance/ca/ca.pocinsurance.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocinsurance/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+        - FABRIC_CA_SERVER_TLS_ENABLED=true
+        - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocinsurance/ca/ca.pocinsurance.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocinsurance/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+      ports:
+        - "8054:7054"
+      command: sh -c 'fabric-ca-server start --config ./config/ca-pocinsurance.yaml -b admin:adminpw -d'
+      #command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+      working_dir: /var/hyperledger/ca-pocinsurance
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./crypto-config/peerOrganizations/pocinsurance.homelend.io/ca/:/var/hyperledger/ca-pocinsurance/ca
+        - ./ca/ca-pocinsurance.yaml:/var/hyperledger/ca-pocinsurance/config/ca-pocinsurance.yaml:ro
+
+  ca.pocappraiser.homelend.io:
+      container_name: ca.pocappraiser.homelend.io
+      image: hyperledger/fabric-ca:x86_64-1.0.2
+      environment:
+        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+        - FABRIC_CA_HOME=/var/hyperledger/ca-pocappraiser
+        - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocappraiser/ca/ca.pocappraiser.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocappraiser/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+        - FABRIC_CA_SERVER_TLS_ENABLED=true
+        - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocappraiser/ca/ca.pocappraiser.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocappraiser/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+      ports:
+        - "8054:7054"
+      command: sh -c 'fabric-ca-server start --config ./config/ca-pocappraiser.yaml -b admin:adminpw -d'
+      #command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+      working_dir: /var/hyperledger/ca-pocappraiser
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./crypto-config/peerOrganizations/pocappraiser.homelend.io/ca/:/var/hyperledger/ca-pocappraiser/ca
+        - ./ca/ca-pocappraiser.yaml:/var/hyperledger/ca-pocappraiser/config/ca-pocappraiser.yaml:ro
+
+  ca.pocgovernment.homelend.io:
+      container_name: ca.pocgovernment.homelend.io
+      image: hyperledger/fabric-ca:x86_64-1.0.2
+      environment:
+        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+        - FABRIC_CA_HOME=/var/hyperledger/ca-pocgovernment
+        - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocgovernment/ca/ca.pocgovernment.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocgovernment/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+        - FABRIC_CA_SERVER_TLS_ENABLED=true
+        - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocgovernment/ca/ca.pocgovernment.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocgovernment/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+      ports:
+        - "8054:7054"
+      command: sh -c 'fabric-ca-server start --config ./config/ca-pocgovernment.yaml -b admin:adminpw -d'
+      #command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+      working_dir: /var/hyperledger/ca-pocgovernment
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./crypto-config/peerOrganizations/pocgovernment.homelend.io/ca/:/var/hyperledger/ca-pocgovernment/ca
+        - ./ca/ca-pocgovernment.yaml:/var/hyperledger/ca-pocgovernment/config/ca-pocgovernment.yaml:ro
+
+ca.pochomelend.homelend.io:
+      container_name: ca.pochomelend.homelend.io
+      image: hyperledger/fabric-ca:x86_64-1.0.2
+      environment:
+        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+        - FABRIC_CA_HOME=/var/hyperledger/ca-pochomelend
+        - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pochomelend/ca/ca.pochomelend.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pochomelend/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+        - FABRIC_CA_SERVER_TLS_ENABLED=true
+        - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pochomelend/ca/ca.pochomelend.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pochomelend/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+      ports:
+        - "8054:7054"
+      command: sh -c 'fabric-ca-server start --config ./config/ca-pochomelend.yaml -b admin:adminpw -d'
+      #command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+      working_dir: /var/hyperledger/ca-pochomelend
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./crypto-config/peerOrganizations/pochomelend.homelend.io/ca/:/var/hyperledger/ca-pochomelend/ca
+        - ./ca/ca-pochomelend.yaml:/var/hyperledger/ca-pochomelend/config/ca-pochomelend.yaml:ro
+
+ca.pocbuyer.homelend.io:
+      container_name: ca.pocbuyer.homelend.io
+      image: hyperledger/fabric-ca:x86_64-1.0.2
+      environment:
+        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+        - FABRIC_CA_HOME=/var/hyperledger/ca-pocbuyer
+        - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocbuyer/ca/ca.pocbuyer.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+        - FABRIC_CA_SERVER_TLS_ENABLED=true
+        - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocbuyer/ca/ca.pocbuyer.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+      ports:
+        - "8054:7054"
+      command: sh -c 'fabric-ca-server start --config ./config/ca-pocbuyer.yaml -b admin:adminpw -d'
+      #command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+      working_dir: /var/hyperledger/ca-pocbuyer
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./crypto-config/peerOrganizations/pocbuyer.homelend.io/ca/:/var/hyperledger/ca-pocbuyer/ca
+        - ./ca/ca-pocbuyer.yaml:/var/hyperledger/ca-pocbuyer/config/ca-pocbuyer.yaml:ro       
+
+ca.pocseller.homelend.io:
+      container_name: ca.pocseller.homelend.io
+      image: hyperledger/fabric-ca:x86_64-1.0.2
+      environment:
+        - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+        - FABRIC_CA_HOME=/var/hyperledger/ca-pocseller
+        - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocseller/ca/ca.pocseller.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocseller/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+        - FABRIC_CA_SERVER_TLS_ENABLED=true
+        - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocseller/ca/ca.pocseller.homelend.io-cert.pem
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocseller/ca/425ac9c90423775b7891476a04b18bf09eec3c82e62b5fa14c8b0cfccf632e9b_sk
+      ports:
+        - "8054:7054"
+      command: sh -c 'fabric-ca-server start --config ./config/ca-pocseller.yaml -b admin:adminpw -d'
+      #command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+      working_dir: /var/hyperledger/ca-pocseller
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - ./crypto-config/peerOrganizations/pocseller.homelend.io/ca/:/var/hyperledger/ca-pocseller/ca
+        - ./ca/ca-pocseller.yaml:/var/hyperledger/ca-pocseller/config/ca-pocseller.yaml:ro   
+
+
+  peer0.pocbank.homelend.io:
+    container_name: peer0.pocbank.homelend.io
+    image: hyperledger/fabric-peer:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      # Making peer work as CLI
+      - ORDERER_CA=/var/hyperledger/orderer/msp/tlsca/tlsca.homelend.io-cert.pem
+      - CHANNEL_NAME=mainchannel
+      # END
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/peernoorbank/msp
+      - CORE_PEER_ID=peer0.pocbank.homelend.io
+      - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbank.homelend.io:7051
+      - CORE_PEER_LOCALMSPID=NoorBankMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peernoorbank/tls/server.key
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peernoorbank/tls/server.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peernoorbank/tls/ca.crt
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbNoorBank:5984
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io:/var/hyperledger/peernoorbank
+    working_dir: /var/hyperledger/peernoorbank
+    command: peer node start
+    ports:
+      - 7051:7051
+      - 7053:7053
+    depends_on:
+      - orderer.homelend.io
+      - couchdbPOCBank
+      - ca.pocbank.homelend.io
+
+  peer0.pocinsurance.homelend.io:
+    container_name: peer0.pocinsurance.homelend.io
+    image: hyperledger/fabric-peer:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      # Making peer work as CLI
+      - ORDERER_CA=/var/hyperledger/orderer/msp/tlsca/tlsca.homelend.io-cert.pem
+      - CHANNEL_NAME=mainchannel
+      # END
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/peerpocinsurance/msp
+      - CORE_PEER_ID=peer0.pocinsurance.homelend.io
+      - CORE_PEER_ADDRESS=peer0.pocinsurance.homelend.io:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocinsurance.homelend.io:7051
+      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocinsurance/tls/server.key
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocinsurance/tls/server.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocinsurance/tls/ca.crt
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCInsurance:5984
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/pocinsurance.homelend.io/peers/peer0.pocinsurance.homelend.io:/var/hyperledger/peerpocinsurance
+    command: peer node start
+    ports:
+      - 8051:7051
+      - 8053:7053
+    depends_on:
+      - orderer.homelend.io
+      - couchdbPOCInsurance
+      - ca.pocinsurance.homelend.io
+
+  peer0.pocappraiser.homelend.io:
+    container_name: peer0.pocappraiser.homelend.io
+    image: hyperledger/fabric-peer:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      # Making peer work as CLI
+      - ORDERER_CA=/var/hyperledger/orderer/msp/tlsca/tlsca.homelend.io-cert.pem
+      - CHANNEL_NAME=mainchannel
+      # END
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/peerpocappraiser/msp
+      - CORE_PEER_ID=peer0.pocappraiser.homelend.io
+      - CORE_PEER_ADDRESS=peer0.pocappraiser.homelend.io:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocappraiser.homelend.io:7051
+      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocappraiser/tls/server.key
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocappraiser/tls/server.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocappraiser/tls/ca.crt
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCAppraiser:5984
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/pocappraiser.homelend.io/peers/peer0.pocappraiser.homelend.io:/var/hyperledger/peerpocappraiser
+    command: peer node start
+    ports:
+      - 8051:7051
+      - 8053:7053
+    depends_on:
+      - orderer.homelend.io
+      - couchdbPOCAppraiser
+      - ca.pocappraiser.homelend.io
+
+peer0.pocgovernment.homelend.io:
+    container_name: peer0.pocgovernment.homelend.io
+    image: hyperledger/fabric-peer:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      # Making peer work as CLI
+      - ORDERER_CA=/var/hyperledger/orderer/msp/tlsca/tlsca.homelend.io-cert.pem
+      - CHANNEL_NAME=mainchannel
+      # END
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/peerpocgovernment/msp
+      - CORE_PEER_ID=peer0.pocgovernment.homelend.io
+      - CORE_PEER_ADDRESS=peer0.pocgovernment.homelend.io:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocgovernment.homelend.io:7051
+      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocgovernment/tls/server.key
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocgovernment/tls/server.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocgovernment/tls/ca.crt
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCGovernment:5984
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/pocgovernment.homelend.io/peers/peer0.pocgovernment.homelend.io:/var/hyperledger/peerpocgovernment
+    command: peer node start
+    ports:
+      - 8051:7051
+      - 8053:7053
+    depends_on:
+      - orderer.homelend.io
+      - couchdbPOCGovernment
+      - ca.pocgovernment.homelend.io
+
+  peer0.pocbuyer.homelend.io:
+    container_name: peer0.pocbuyer.homelend.io
+    image: hyperledger/fabric-peer:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      # Making peer work as CLI
+      - ORDERER_CA=/var/hyperledger/orderer/msp/tlsca/tlsca.homelend.io-cert.pem
+      - CHANNEL_NAME=mainchannel
+      # END
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/peerpocbuyer/msp
+      - CORE_PEER_ID=peer0.pocbuyer.homelend.io
+      - CORE_PEER_ADDRESS=peer0.pocbuyer.homelend.io:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbuyer.homelend.io:7051
+      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocbuyer/tls/server.key
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocbuyer/tls/server.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocbuyer/tls/ca.crt
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCBuyer:5984
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/pocbuyer.homelend.io/peers/peer0.pocbuyer.homelend.io:/var/hyperledger/peerpocbuyer
+    command: peer node start
+    ports:
+      - 8051:7051
+      - 8053:7053
+    depends_on:
+      - orderer.homelend.io
+      - couchdbPOCBuyer
+      - ca.pocbuyer.homelend.io
+
+  peer0.pocseller.homelend.io:
+    container_name: peer0.pocseller.homelend.io
+    image: hyperledger/fabric-peer:x86_64-1.0.2
+    environment:
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      # Making peer work as CLI
+      - ORDERER_CA=/var/hyperledger/orderer/msp/tlsca/tlsca.homelend.io-cert.pem
+      - CHANNEL_NAME=mainchannel
+      # END
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ENDORSER_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/peerpocseller/msp
+      - CORE_PEER_ID=peer0.pocseller.homelend.io
+      - CORE_PEER_ADDRESS=peer0.pocseller.homelend.io:7051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocseller.homelend.io:7051
+      - CORE_PEER_LOCALMSPID=MashreqBankMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocseller/tls/server.key
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocseller/tls/server.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocseller/tls/ca.crt
+      # CouchDB
+      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
+      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCSeller:5984
+    volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /var/run/:/host/var/run/
+        - ./crypto-config/peerOrganizations/pocseller.homelend.io/peers/peer0.pocseller.homelend.io:/var/hyperledger/peerpocseller
+    command: peer node start
+    ports:
+      - 8051:7051
+      - 8053:7053
+    depends_on:
+      - orderer.homelend.io
+      - couchdbPOCSeller
+      - ca.pocseller.homelend.io
+
+  cli:
+    container_name: cli
+    image: hyperledger/fabric-tools:x86_64-1.0.2
+    tty: true
+    environment:
+      - CHAINCODE=lending_chaincode
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
+      - CHANNEL_NAME=mainchannel
+      - GOPATH=/var/hyperledger/cli/gopath
+      - ORDERER_CA=/var/hyperledger/cli/crypto/ordererOrganizations/homelend.io/tlsca/tlsca.homelend.io-cert.pem
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_LOGGING_LEVEL=DEBUG
+      - CORE_PEER_ID=cli
+      - CORE_PEER_LOCALMSPID=NoorBankMSP
+      - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/users/Admin@pocbank.homelend.io/msp
+      - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/ca.crt
+    working_dir: /var/hyperledger/cli
+    command: /bin/bash -c './scripts/script.sh ${CHANNEL_NAME}; sleep $TIMEOUT'
+    volumes:
+        - ./channel-artifacts:/var/hyperledger/cli/channel-artifacts
+        - ./crypto-config:/var/hyperledger/cli/crypto/
+        - ./chaincode/:/var/hyperledger/cli/gopath/src
+        - ./scripts:/var/hyperledger/cli/scripts/
+        - /etc/localtime:/etc/localtime:ro
+        - /var/run/:/host/var/run/
+    depends_on:
+      - peer0.pocbank.homelend.io
+      - peer0.pocappraiser.homelend.io
+      - peer0.pocinsurance.homelend.io
+      - peer0.pocgovernment.homelend.io
+      - peer0.pocbuyer.homelend.io
+      - peer0.pocseller.homelend.io
+      - peer0.pochomelend.homelend.io
