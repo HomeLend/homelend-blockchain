@@ -212,10 +212,10 @@ services:
           - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
           - FABRIC_CA_HOME=/var/hyperledger/ca-pocbuyer
           - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocbuyer/ca/ca.pocbuyer.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/27945366c50afe842e6a3913f07d05ade23a08b918e7cafaa4a1c56f65a1ee77_sk
+          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/27a0ab081345465be069ebd9fae979ca1bcafefbe274a20e1b67132c3542d732_sk
           - FABRIC_CA_SERVER_TLS_ENABLED=true
           - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocbuyer/ca/ca.pocbuyer.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/27945366c50afe842e6a3913f07d05ade23a08b918e7cafaa4a1c56f65a1ee77_sk
+          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/27a0ab081345465be069ebd9fae979ca1bcafefbe274a20e1b67132c3542d732_sk
         ports:
           - "12054:7054"
         command: sh -c 'fabric-ca-server start --config ./config/ca-pocbuyer.yaml -b admin:adminpw -d'
