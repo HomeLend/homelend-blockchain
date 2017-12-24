@@ -124,7 +124,7 @@ installChaincode () {
 	setGlobals $PEER
 	for chaincode in ${CHAINCODES[*]}; do
         #peer chaincode install -n $chaincode -v 1.0 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED  -p $chaincode >&log.txt
-        peer chaincode install -n $chaincode -v v1 --cafile $ORDERER_CA  --tls $CORE_PEER_TLS_ENABLED -p $chaincode >&log.txt
+        peer chaincode install -n $chaincode -v v1 --cafile $ORDERER_CA -p $chaincode >&log.txt
         res=$?
         cat log.txt
         verifyResult $res "Chaincode installation on remote peer PEER$PEER has Failed"
