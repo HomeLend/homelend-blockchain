@@ -17,7 +17,7 @@ PeerOrgs:
       Count: 1
 
   - Name: POCInsurance
-    Domain: pocinsrurance.homelend.io
+    Domain: pocinsurance.homelend.io
     CA:
       Hostname: ca
     Template:
