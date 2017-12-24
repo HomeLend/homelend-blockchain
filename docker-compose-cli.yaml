@@ -124,6 +124,8 @@ services:
       - ./crypto-config/peerOrganizations/pocbank.homelend.io/ca/:/var/hyperledger/ca-pocbank/ca
       - ./crypto-config/peerOrganizations/pocbank.homelend.io/tlsca/:/var/hyperledger/ca-pocbank/tlsca
       - ./ca/ca-pocbank.yaml:/var/hyperledger/ca-pocbank/config/ca-pocbank.yaml:ro
+    depends_on:
+      - couchdbPOCBank  
 
   ca.pocinsurance.homelend.io:
       container_name: ca.pocinsurance.homelend.io
@@ -144,6 +146,8 @@ services:
         - /etc/localtime:/etc/localtime:ro
         - ./crypto-config/peerOrganizations/pocinsurance.homelend.io/ca/:/var/hyperledger/ca-pocinsurance/ca
         - ./ca/ca-pocinsurance.yaml:/var/hyperledger/ca-pocinsurance/config/ca-pocinsurance.yaml:ro
+      depends_on:
+        - couchdbPOCInsurance
 
   ca.pocappraiser.homelend.io:
       container_name: ca.pocappraiser.homelend.io
@@ -164,6 +168,8 @@ services:
         - /etc/localtime:/etc/localtime:ro
         - ./crypto-config/peerOrganizations/pocappraiser.homelend.io/ca/:/var/hyperledger/ca-pocappraiser/ca
         - ./ca/ca-pocappraiser.yaml:/var/hyperledger/ca-pocappraiser/config/ca-pocappraiser.yaml:ro
+      depends_on:
+        - couchdbPOCAppraiser
 
   ca.pocgovernment.homelend.io:
       container_name: ca.pocgovernment.homelend.io
@@ -184,6 +190,8 @@ services:
         - /etc/localtime:/etc/localtime:ro
         - ./crypto-config/peerOrganizations/pocgovernment.homelend.io/ca/:/var/hyperledger/ca-pocgovernment/ca
         - ./ca/ca-pocgovernment.yaml:/var/hyperledger/ca-pocgovernment/config/ca-pocgovernment.yaml:ro
+      depends_on:
+        - couchdbPOCGovernment
 
   ca.pochomelend.homelend.io:
         container_name: ca.pochomelend.homelend.io
@@ -204,6 +212,8 @@ services:
           - /etc/localtime:/etc/localtime:ro
           - ./crypto-config/peerOrganizations/pochomelend.homelend.io/ca/:/var/hyperledger/ca-pochomelend/ca
           - ./ca/ca-pochomelend.yaml:/var/hyperledger/ca-pochomelend/config/ca-pochomelend.yaml:ro
+        depends_on:
+          - couchdbPOCHomelend
 
   ca.pocbuyer.homelend.io:
         container_name: ca.pocbuyer.homelend.io
@@ -224,6 +234,8 @@ services:
           - /etc/localtime:/etc/localtime:ro
           - ./crypto-config/peerOrganizations/pocbuyer.homelend.io/ca/:/var/hyperledger/ca-pocbuyer/ca
           - ./ca/ca-pocbuyer.yaml:/var/hyperledger/ca-pocbuyer/config/ca-pocbuyer.yaml:ro       
+        depends_on:
+          - couchdbPOCBuyer
 
   ca.pocseller.homelend.io:
         container_name: ca.pocseller.homelend.io
@@ -244,6 +256,8 @@ services:
           - /etc/localtime:/etc/localtime:ro
           - ./crypto-config/peerOrganizations/pocseller.homelend.io/ca/:/var/hyperledger/ca-pocseller/ca
           - ./ca/ca-pocseller.yaml:/var/hyperledger/ca-pocseller/config/ca-pocseller.yaml:ro   
+        depends_on:
+          - couchdbPOCSeller
 
   peer0.pocbank.homelend.io:
     container_name: peer0.pocbank.homelend.io
