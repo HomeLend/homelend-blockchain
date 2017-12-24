@@ -530,7 +530,7 @@ services:
       - 13053:7053
     depends_on:
       - orderer.homelend.io
-      - couchdbPOCSeller
+      - couchdbPOCHomelend
       - ca.pochomelend.homelend.io
 
   cli:
