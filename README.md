@@ -15,6 +15,8 @@ peer chaincode invoke -o orderer.homelend.io:7050  --tls $CORE_PEER_TLS_ENABLED 
 # REGISTER AS SELLER
 peer chaincode invoke -o orderer.homelend.io:7050  --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $DC -v v1 -c '{"Args":["registerAsSeller", "{\"Name\":\"Seller#1\",\"Firstname\":\"John\",\"Lastname\":\"Smith\", \"Timestamp\":111}"]}'
 
+# GET USER TOKENS
 peer chaincode query -C $CHANNEL_NAME -n $DC -c '{"Args":["getUserHouses"]}'
 
+# GET ALL CHAINCODE RESULTS
 peer chaincode query -C $CHANNEL_NAME -n $DC -c '{"Args":["query","{}"]}'
