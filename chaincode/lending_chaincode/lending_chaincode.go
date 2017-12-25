@@ -15,8 +15,8 @@ type HomelendChaincode struct {
 // House chaincode
 type House struct {
 	Hash        string `json:"Hash"`
-	FlatNumber  string `json:"BookNumber"`
-	HouseNumber string `json:"SerialNumber"`
+	FlatNumber  string `json:"FlatNumber"`
+	HouseNumber string `json:"HouseNumber"`
 	Street      string `json:"Street"`
 	Amount      int    `json:"Amount"`
 	Timestamp   int    `json:"Timestamp"`
@@ -309,7 +309,7 @@ func (t *HomelendChaincode) registerAsBank(stub shim.ChaincodeStubInterface, arg
 	if mspid != "POCBankMSP" {
 		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
 		fmt.Println(str)
-		return shim.Error(str)
+		// return shim.Error(str)
 	}
 
 	data := &Bank{}
@@ -402,7 +402,7 @@ func (t *HomelendChaincode) registerAsSeller(stub shim.ChaincodeStubInterface, a
 	if mspid != "POCSellerMSP" {
 		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
 		fmt.Println(str)
-		// return shim.Error(str)
+		return shim.Error(str)
 	}
 
 	data := &Seller{}
