@@ -50,7 +50,14 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.get(stub, args)
 	} else if function == "query" {
 		return t.query(stub, args[0])
+	} else if function == "sell" {
+		return t.sell(stub, args)
+	} else if function == "buy" {
+		return t.query(stub, args[0])
+	} else if function == "registerBank" {
+		return t.query(stub, args[0])
 	}
+
 	fmt.Println("invoke did not find func: " + function) //error
 	return shim.Error("Received unknown function invocation")
 }
