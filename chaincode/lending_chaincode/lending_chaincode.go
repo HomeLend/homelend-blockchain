@@ -76,7 +76,6 @@ func (t *SimpleChaincode) registerSeller(stub shim.ChaincodeStubInterface, args 
 }
 
 func (t *SimpleChaincode) registerBuyer(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-
 	return shim.Success(nil);
 }
 
@@ -119,7 +118,6 @@ func (t *SimpleChaincode) sell(stub shim.ChaincodeStubInterface, args []string) 
 	}
 
 	data := &House{}
-	storedData := &House{}
 	err = json.Unmarshal([]byte(args[0]), data)
 	if err != nil {
 		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
@@ -154,7 +152,24 @@ func (t *SimpleChaincode) sell(stub shim.ChaincodeStubInterface, args []string) 
 
 		fmt.Println("Sucessfully executed");
 	} else {
+		var arrayOfData []*House;
+		err = json.Unmarshal(dataAsBytes, arrayOfData)
 
+		if err != nil {
+			str := fmt.Sprintf("Failed to unmarshal: %s", err)
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		arrayOfData = append(arrayOfData, data)
+		arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
+
+		err = stub.PutState(identity, arrayOfDataAsBytes)
+		if err != nil {
+			str := fmt.Sprintf("Could not put state %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
 	}
 
 	return shim.Success(nil)
