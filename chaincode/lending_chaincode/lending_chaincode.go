@@ -41,7 +41,17 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 // ===========================
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	function, args := stub.GetFunctionAndParameters()
-	//TODO: Code for checking the role of the user
+
+	identity, err := cid.GetID(stub)
+
+	if err!= nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println(fmt.Printf("Identity %+s", identity))
+
 	if function == "create" {
 		return t.create(stub, args)
 	} else if function == "update" {
@@ -52,8 +62,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.query(stub, args[0])
 	} else if function == "sell" {
 		return t.sell(stub, args)
-	} else if function == "buy" {
-		return t.query(stub, args[0])
+	} else if function == "getUserHouses" {
+		return t.getUserHouses(stub)
 	} else if function == "registerBank" {
 		return t.query(stub, args[0])
 	}
@@ -132,14 +142,16 @@ func (t *SimpleChaincode) sell(stub shim.ChaincodeStubInterface, args []string) 
 		return shim.Error(str)
 	}
 
+	fmt.Println(fmt.Printf("Getting state for %+s", identity))
 	dataAsBytes, err := stub.GetState(identity)
 	if err != nil {
-		str := fmt.Sprintf("Failed to get: %s", data.Hash)
+		str := fmt.Sprintf("Failed to get: %s", identity)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
 
 	if dataAsBytes == nil {
+		fmt.Println("Does not have houses. Creating first one")
 		var arrayOfData []*House;
 		arrayOfData = append(arrayOfData, data)
 
@@ -150,6 +162,7 @@ func (t *SimpleChaincode) sell(stub shim.ChaincodeStubInterface, args []string) 
 			return shim.Error(str)
 		}
 
+		fmt.Println()
 		err = stub.PutState(identity, dataJSONasBytes)
 		if err != nil {
 			str := fmt.Sprintf("Could not put state %+v", err.Error())
@@ -159,8 +172,9 @@ func (t *SimpleChaincode) sell(stub shim.ChaincodeStubInterface, args []string) 
 
 		fmt.Println("Sucessfully executed");
 	} else {
+		fmt.Println("Already has houses. Appending one")
 		var arrayOfData []*House;
-		err = json.Unmarshal(dataAsBytes, arrayOfData)
+		err = json.Unmarshal(dataAsBytes, &arrayOfData)
 
 		if err != nil {
 			str := fmt.Sprintf("Failed to unmarshal: %s", err)
@@ -287,6 +301,31 @@ func (t *SimpleChaincode) update(stub shim.ChaincodeStubInterface, args []string
 
 	fmt.Println("Successfully updated")
 	return shim.Success(nil)
+}
+
+func (t *SimpleChaincode) getUserHouses(stub shim.ChaincodeStubInterface) pb.Response {
+	identity, err := cid.GetID(stub)
+
+	if err!= nil {
+		str := fmt.Sprintf("MSPID error %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	valAsBytes, err := stub.GetState(identity)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to get state %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	} else if valAsBytes == nil {
+		str := fmt.Sprintf("Record does not exist %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println("Successfully got")
+	return shim.Success(valAsBytes)
 }
 
 func (t *SimpleChaincode) get(stub shim.ChaincodeStubInterface, args []string) pb.Response {
