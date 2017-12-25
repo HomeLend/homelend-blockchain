@@ -39,6 +39,28 @@ type Seller struct {
 	Timestamp   int    `json:"Timestamp"`
 }
 
+type Buyer struct {
+	ID         string `json:"ID"`
+	Firstname  string `json:"Firstname"`
+	Lastname   string `json:"Lastname"`
+	DocumentID string `json:"DocumentID"`
+	Timestamp  int    `json:"Timestamp"`
+}
+
+type Appraiser struct {
+	ID         string `json:"ID"`
+	Firstname  string `json:"Firstname"`
+	Lastname   string `json:"Lastname"`
+	Timestamp  int    `json:"Timestamp"`
+}
+
+type InsuranceCompany struct {
+	ID         string `json:"ID"`
+	Name       string `json:"Firstname"`
+	Address    string `json:"Lastname"`
+	Timestamp  int    `json:"Timestamp"`
+}
+
 // Init initializes chaincode
 // ===========================
 func (t *HomelendChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
@@ -84,194 +106,11 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	return shim.Error("Received unknown function invocation")
 }
 
-func (t *HomelendChaincode) registerAsBank(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("registerAsBank executed with args: %+v", args))
-
-	var err error
-	if len(args) != 1 {
-		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if len(args[0]) <= 0 {
-		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	mspid, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		str := fmt.Sprintf("MSPID error %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	identity, err := cid.GetID(stub)
-
-	if err != nil {
-		str := fmt.Sprintf("MSPID error %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if mspid != "POCBankMSP" {
-		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	data := &Bank{}
-	err = json.Unmarshal([]byte(args[0]), data)
-	if err != nil {
-		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	fmt.Println(fmt.Printf("Getting state for %+s", "bank-list"))
-	dataAsBytes, err := stub.GetState("bank_list")
-	if err != nil {
-		str := fmt.Sprintf("Failed to get: %s", identity)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if dataAsBytes == nil {
-		var bankList []*Bank;
-		bankList = append(bankList, data)
-
-		bankListasBytes, err := json.Marshal(bankList)
-		if err != nil {
-			str := fmt.Sprintf("Could not marshal %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		err = stub.PutState("bank_list", bankListasBytes)
-	} else {
-		var bankList []*Bank;
-
-		// todo: check for existing bank with hash
-
-		err = json.Unmarshal(dataAsBytes, &bankList)
-		if err != nil {
-			str := fmt.Sprintf("Could not marshal %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		bankList = append(bankList, data)
-
-		bankListasBytes, err := json.Marshal(bankList)
-		if err != nil {
-			str := fmt.Sprintf("Could not marshal %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		err = stub.PutState("bank_list", bankListasBytes)
-	}
-
-	return shim.Success(nil);
-}
-
 func (t *HomelendChaincode) registerAsAppraiser(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	return shim.Success(nil);
 }
 
 func (t *HomelendChaincode) registerAsInsurance(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	return shim.Success(nil);
-}
-
-func (t *HomelendChaincode) registerAsSeller(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("registerAsSeller executed with args: %+v", args))
-
-	var err error
-	if len(args) != 1 {
-		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if len(args[0]) <= 0 {
-		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	mspid, err := cid.GetMSPID(stub)
-
-	if err != nil {
-		str := fmt.Sprintf("MSPID error %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	identity, err := cid.GetID(stub)
-
-	if err != nil {
-		str := fmt.Sprintf("MSPID error %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if mspid != "POCBankMSP" {
-		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	data := &Bank{}
-	err = json.Unmarshal([]byte(args[0]), data)
-	if err != nil {
-		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	fmt.Println(fmt.Printf("Getting state for %+s", "bank-list"))
-	dataAsBytes, err := stub.GetState("bank_list")
-	if err != nil {
-		str := fmt.Sprintf("Failed to get: %s", identity)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if dataAsBytes == nil {
-		var bankList []*Bank;
-		bankList = append(bankList, data)
-
-		bankListasBytes, err := json.Marshal(bankList)
-		if err != nil {
-			str := fmt.Sprintf("Could not marshal %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		err = stub.PutState("bank_list", bankListasBytes)
-	} else {
-		var bankList []*Bank;
-		err = json.Unmarshal(dataAsBytes, &bankList)
-		if err != nil {
-			str := fmt.Sprintf("Could not marshal %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		bankList = append(bankList, data)
-
-		bankListasBytes, err := json.Marshal(bankList)
-		if err != nil {
-			str := fmt.Sprintf("Could not marshal %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		err = stub.PutState("bank_list", bankListasBytes)
-	}
-
 	return shim.Success(nil);
 }
 
@@ -445,6 +284,188 @@ func (t *HomelendChaincode) query(stub shim.ChaincodeStubInterface, queryString 
 
 	fmt.Println("Sucessfully queried")
 	return shim.Success(buffer.Bytes())
+}
+
+func (t *HomelendChaincode) registerAsBank(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("registerAsBank executed with args: %+v", args))
+
+	var err error
+	if len(args) != 1 {
+		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(args[0]) <= 0 {
+		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	mspid, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if mspid != "POCBankMSP" {
+		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	data := &Bank{}
+	err = json.Unmarshal([]byte(args[0]), data)
+	if err != nil {
+		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println(fmt.Printf("Getting state for %+s", "bank_list"))
+	dataAsBytes, err := stub.GetState("bank_list")
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if dataAsBytes == nil {
+		var bankList []*Bank;
+		bankList = append(bankList, data)
+
+		bankListasBytes, err := json.Marshal(bankList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		err = stub.PutState("bank_list", bankListasBytes)
+	} else {
+		var bankList []*Bank;
+
+		// todo: check for existing bank with hash
+
+		err = json.Unmarshal(dataAsBytes, &bankList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		bankList = append(bankList, data)
+
+		bankListasBytes, err := json.Marshal(bankList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		err = stub.PutState("bank_list", bankListasBytes)
+	}
+
+	return shim.Success(nil);
+}
+
+func (t *HomelendChaincode) registerAsSeller(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("registerAsSeller executed with args: %+v", args))
+
+	var err error
+	if len(args) != 1 {
+		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(args[0]) <= 0 {
+		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	mspid, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if mspid != "POCSellerMSP" {
+		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	data := &Seller{}
+	err = json.Unmarshal([]byte(args[0]), data)
+	if err != nil {
+		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println(fmt.Printf("Getting state for %+s", "seller_list"))
+	dataAsBytes, err := stub.GetState("seller_list")
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if dataAsBytes == nil {
+		var sellerList []*Seller;
+		sellerList = append(sellerList, data)
+
+		listasBytes, err := json.Marshal(sellerList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		err = stub.PutState("seller_list", listasBytes)
+	} else {
+		var sellerList []*Seller;
+		err = json.Unmarshal(dataAsBytes, &sellerList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		sellerList = append(sellerList, data)
+		listAsBytes, err := json.Marshal(sellerList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		err = stub.PutState("seller_list", listAsBytes)
+	}
+
+	return shim.Success(nil);
 }
 
 // ===================================================================================
