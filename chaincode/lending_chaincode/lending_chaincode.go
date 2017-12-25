@@ -9,13 +9,7 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 )
 
-/**
-	USD txs - usdtxs
-	House txs - housetxs
- */
-
-// SimpleChaincode example simple Chaincode implementation
-type SimpleChaincode struct {
+type HomelendChaincode struct {
 }
 
 // House chaincode
@@ -30,33 +24,41 @@ type House struct {
 
 type Bank struct {
 	Hash          string `json:"Hash"`
-	Name          string `json:"BookNumber"`
-	LicenceNumber string `json:"SerialNumber"`
-	Address       string `json:"Street"`
-	TotalSupply   int    `json:"Amount"`
+	Name          string `json:"Name"`
+	LicenceNumber string `json:"LicenceNumber"`
+	Address       string `json:"Address"`
+	TotalSupply   int    `json:"TotalSupply"`
 	Timestamp     int    `json:"Timestamp"`
 }
 
-type Person struct {
-	Hash        string `json:"Hash"`
-	Firstname   string `json:"BookNumber"`
-	Lastname    string `json:"SerialNumber"`
-	Citizenship string `json:"Street"`
+type Seller struct {
+	ID          string `json:"ID"`
+	Firstname   string `json:"Firstname"`
+	Lastname    string `json:"Lastname"`
+	Citizenship string `json:"Citizenship"`
 	Timestamp   int    `json:"Timestamp"`
 }
 
 // Init initializes chaincode
 // ===========================
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *HomelendChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Success(nil)
 }
 
 // Invoke chaincode methods
 // ===========================
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	function, args := stub.GetFunctionAndParameters()
 
 	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("Identity error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	mspid, err := cid.GetMSPID(stub)
 
 	if err != nil {
 		str := fmt.Sprintf("MSPID error %+v", args)
@@ -64,21 +66,17 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 		return shim.Error(str)
 	}
 
-	fmt.Println(fmt.Printf("Identity %+s", identity))
+	fmt.Println(fmt.Printf("Access log %s %s", identity, mspid))
 
-	if function == "create" {
-		return t.create(stub, args)
-	} else if function == "update" {
-		return t.update(stub, args)
-	} else if function == "get" {
-		return t.get(stub, args)
-	} else if function == "query" {
+	if function == "query" {
 		return t.query(stub, args[0])
 	} else if function == "sell" {
 		return t.sell(stub, args)
 	} else if function == "getUserHouses" {
 		return t.getUserHouses(stub)
-	} else if function == "registerBank" {
+	} else if function == "registerAsBank" {
+		return t.query(stub, args[0])
+	} else if function == "registerAsSeller" {
 		return t.query(stub, args[0])
 	}
 
@@ -86,8 +84,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	return shim.Error("Received unknown function invocation")
 }
 
-func (t *SimpleChaincode) registerAsBank(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("sell executed with args: %+v", args))
+func (t *HomelendChaincode) registerAsBank(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("registerAsBank executed with args: %+v", args))
 
 	var err error
 	if len(args) != 1 {
@@ -155,6 +153,8 @@ func (t *SimpleChaincode) registerAsBank(stub shim.ChaincodeStubInterface, args 
 	} else {
 		var bankList []*Bank;
 
+		// todo: check for existing bank with hash
+
 		err = json.Unmarshal(dataAsBytes, &bankList)
 		if err != nil {
 			str := fmt.Sprintf("Could not marshal %+v", err.Error())
@@ -173,25 +173,113 @@ func (t *SimpleChaincode) registerAsBank(stub shim.ChaincodeStubInterface, args 
 
 		err = stub.PutState("bank_list", bankListasBytes)
 	}
-}
 
-func (t *SimpleChaincode) registerAppraiser(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	return shim.Success(nil);
 }
 
-func (t *SimpleChaincode) registerInsurance(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *HomelendChaincode) registerAsAppraiser(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	return shim.Success(nil);
 }
 
-func (t *SimpleChaincode) registerSeller(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *HomelendChaincode) registerAsInsurance(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	return shim.Success(nil);
 }
 
-func (t *SimpleChaincode) registerBuyer(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *HomelendChaincode) registerAsSeller(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("registerAsSeller executed with args: %+v", args))
+
+	var err error
+	if len(args) != 1 {
+		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(args[0]) <= 0 {
+		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	mspid, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if mspid != "POCBankMSP" {
+		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	data := &Bank{}
+	err = json.Unmarshal([]byte(args[0]), data)
+	if err != nil {
+		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println(fmt.Printf("Getting state for %+s", "bank-list"))
+	dataAsBytes, err := stub.GetState("bank_list")
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if dataAsBytes == nil {
+		var bankList []*Bank;
+		bankList = append(bankList, data)
+
+		bankListasBytes, err := json.Marshal(bankList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		err = stub.PutState("bank_list", bankListasBytes)
+	} else {
+		var bankList []*Bank;
+		err = json.Unmarshal(dataAsBytes, &bankList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		bankList = append(bankList, data)
+
+		bankListasBytes, err := json.Marshal(bankList)
+		if err != nil {
+			str := fmt.Sprintf("Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		err = stub.PutState("bank_list", bankListasBytes)
+	}
+
 	return shim.Success(nil);
 }
 
-func (t *SimpleChaincode) sell(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *HomelendChaincode) registerBuyer(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	return shim.Success(nil);
+}
+
+func (t *HomelendChaincode) sell(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(fmt.Sprintf("sell executed with args: %+v", args))
 
 	var err error
@@ -290,114 +378,11 @@ func (t *SimpleChaincode) sell(stub shim.ChaincodeStubInterface, args []string) 
 	return shim.Success(nil)
 }
 
-func (t *SimpleChaincode) buy(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	return shim.Success(nil);
 }
 
-// Create method creates entity
-func (t *SimpleChaincode) create(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("create executed with args: %+v", args))
-
-	var err error
-	if len(args) != 1 {
-		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if len(args[0]) <= 0 {
-		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	data := &House{}
-	err = json.Unmarshal([]byte(args[0]), data)
-	if err != nil {
-		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	dataAsBytes, err := stub.GetState(data.Hash)
-	if err != nil {
-		str := fmt.Sprintf("Failed to get: %s", data.Hash)
-		fmt.Println(str)
-		return shim.Error(str)
-	} else if dataAsBytes != nil {
-		str := fmt.Sprintf("Record already exists: %s", data.Hash)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-	dataJSONasBytes, err := json.Marshal(data)
-	if err != nil {
-		str := fmt.Sprintf("Could not marshal %+v", err.Error())
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	err = stub.PutState(data.Hash, dataJSONasBytes)
-	if err != nil {
-		str := fmt.Sprintf("Could not put state %+v", err.Error())
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	fmt.Println("Sucessfully executed");
-	return shim.Success(nil)
-}
-
-func (t *SimpleChaincode) update(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	var err error
-
-	if len(args) != 1 {
-		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if len(args[0]) <= 0 {
-		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	data := &House{}
-	err = json.Unmarshal([]byte(args[0]), data)
-
-	dataAsBytes, err := stub.GetState(data.Hash)
-
-	if err != nil {
-		str := fmt.Sprintf("Failed to get: %+v", err.Error());
-		fmt.Println(str)
-		return shim.Error(str)
-	} else if dataAsBytes == nil {
-		str := fmt.Sprintf("Record does not exists: %s", data.Hash)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	dataJSONasBytes, err := json.Marshal(data)
-
-	if err != nil {
-		str := fmt.Sprintf("Can not marshal %+v", err.Error())
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	err = stub.PutState(data.Hash, dataJSONasBytes)
-
-	if err != nil {
-		str := fmt.Sprintf("Can not put state %+v", err.Error())
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	fmt.Println("Successfully updated")
-	return shim.Success(nil)
-}
-
-func (t *SimpleChaincode) getUserHouses(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *HomelendChaincode) getUserHouses(stub shim.ChaincodeStubInterface) pb.Response {
 	identity, err := cid.GetID(stub)
 
 	if err != nil {
@@ -422,31 +407,7 @@ func (t *SimpleChaincode) getUserHouses(stub shim.ChaincodeStubInterface) pb.Res
 	return shim.Success(valAsBytes)
 }
 
-func (t *SimpleChaincode) get(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	if len(args) != 1 {
-		str := fmt.Sprintf("Incorrect number(%d) of arguments", len(args))
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	hash := args[0]
-	valAsBytes, err := stub.GetState(hash)
-
-	if err != nil {
-		str := fmt.Sprintf("Failed to get state %+v", err.Error())
-		fmt.Println(str)
-		return shim.Error(str)
-	} else if valAsBytes == nil {
-		str := fmt.Sprintf("Record does not exist %s", hash)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	fmt.Println("Successfully got")
-	return shim.Success(valAsBytes)
-}
-
-func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, queryString string) pb.Response {
+func (t *HomelendChaincode) query(stub shim.ChaincodeStubInterface, queryString string) pb.Response {
 	fmt.Println(fmt.Sprintf("query started %s", queryString))
 	resultsIterator, err := stub.GetQueryResult(queryString)
 	if err != nil {
@@ -490,7 +451,7 @@ func (t *SimpleChaincode) query(stub shim.ChaincodeStubInterface, queryString st
 // Main
 // ===================================================================================
 func main() {
-	err := shim.Start(new(SimpleChaincode))
+	err := shim.Start(new(HomelendChaincode))
 	if err != nil {
 		fmt.Printf("Error starting chaincode: %s", err)
 	}
