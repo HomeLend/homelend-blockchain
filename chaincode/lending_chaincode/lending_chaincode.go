@@ -35,7 +35,6 @@ type Seller struct {
 	ID          string `json:"ID"`
 	Firstname   string `json:"Firstname"`
 	Lastname    string `json:"Lastname"`
-	Citizenship string `json:"Citizenship"`
 	Timestamp   int    `json:"Timestamp"`
 }
 
@@ -97,25 +96,13 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	} else if function == "getUserHouses" {
 		return t.getUserHouses(stub)
 	} else if function == "registerAsBank" {
-		return t.query(stub, args[0])
+		return t.registerAsBank(stub, args)
 	} else if function == "registerAsSeller" {
-		return t.query(stub, args[0])
+		return t.registerAsSeller(stub, args)
 	}
 
 	fmt.Println("invoke did not find func: " + function) //error
 	return shim.Error("Received unknown function invocation")
-}
-
-func (t *HomelendChaincode) registerAsAppraiser(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	return shim.Success(nil);
-}
-
-func (t *HomelendChaincode) registerAsInsurance(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	return shim.Success(nil);
-}
-
-func (t *HomelendChaincode) registerBuyer(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	return shim.Success(nil);
 }
 
 func (t *HomelendChaincode) sell(stub shim.ChaincodeStubInterface, args []string) pb.Response {
@@ -150,10 +137,11 @@ func (t *HomelendChaincode) sell(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error(str)
 	}
 
+	// todo: disable
 	if mspid != "POCSellerMSP" {
 		str := fmt.Sprintf("Only Seller Node can execute this method error %+v", mspid)
 		fmt.Println(str)
-		return shim.Error(str)
+		// return shim.Error(str)
 	}
 
 	data := &House{}
@@ -414,7 +402,7 @@ func (t *HomelendChaincode) registerAsSeller(stub shim.ChaincodeStubInterface, a
 	if mspid != "POCSellerMSP" {
 		str := fmt.Sprintf("Only Bank Node can execute this method error %+v", mspid)
 		fmt.Println(str)
-		return shim.Error(str)
+		// return shim.Error(str)
 	}
 
 	data := &Seller{}
