@@ -4,6 +4,7 @@ CHANNEL_NAME=mainchannel TIMEOUT=50000 docker-compose -f docker-compose-cli.yaml
 # Installing the chaincode
 peer chaincode install -n $DC -v v1 -p $CHAINCODE
 
+# Instiantiating
 peer chaincode instantiate -o orderer.homelend.io:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $DC -v v1 -c '{"Args":["init"]}' -P "OR('POCSellerMSP.admin', 'POCSellerMSP.member')"
 
 # SELLING
