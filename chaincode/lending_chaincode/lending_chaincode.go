@@ -10,10 +10,10 @@ import (
 )
 
 // REQUEST STATUSES
-const REQUEST_INITIALIZED = 1
-const REQUEST_CREDIT_SCORE = 2
-const REQUEST_CREDIT_SCORE_CONFIRMED = 3
-const REQUEST_CREDIT_SCORE_DECLINED = 4
+const REQUEST_INITIALIZED = "REQUEST_INITIALIZED"
+const REQUEST_CREDIT_SCORE = "REQUEST_CREDIT_SCORE"
+const REQUEST_CREDIT_SCORE_CONFIRMED = "REQUEST_CREDIT_SCORE_CONFIRMED"
+const REQUEST_CREDIT_SCORE_DECLINED = "REQUEST_CREDIT_SCORE_DECLINED"
 
 type HomelendChaincode struct {
 }
@@ -26,18 +26,19 @@ type Property struct {
 }
 
 type RequestStatus struct {
-	Status    int `json:"Status"`
-	Timestamp int `json:"Timestamp"`
+	Status    string `json:"Status"`
+	Timestamp int    `json:"Timestamp"`
 }
 
 type Request struct {
 	Hash         string          `json:"Hash"`
 	PropertyHash string          `json:"Name"`
 	Buyer        string          `json:"Buyer"`
+	Seller       string          `json:"Seller"`
 	Salary       int             `json:"TotalSupply"`
 	LoanAmount   int             `json:"LoanAmount"`
-	Status       int             `json:"Status"`
-	Statuses     []RequestStatus `json:"RequestStatuses"`
+	Status       string          `json:"Status,omitempty"`
+	Statuses     []RequestStatus `json:"RequestStatuses,omitempty"`
 	Timestamp    int             `json:"Timestamp"`
 }
 
@@ -114,6 +115,8 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 		return t.advertise(stub, args)
 	} else if function == "getProperties" {
 		return t.getProperties(stub)
+	} else if function == "buy" {
+		return t.buy(stub, args)
 	}
 
 	fmt.Println("invoke did not find func: " + function) //error
@@ -121,7 +124,7 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 }
 
 func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("sell executed with args: %+v", args))
+	fmt.Println(fmt.Sprintf("advertise executed with args: %+v", args))
 
 	var err error
 	if len(args) != 1 {
@@ -332,6 +335,8 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
+
+	data.Status = REQUEST_INITIALIZED
 
 	fmt.Println(fmt.Printf("Getting state for %+s", identity))
 	dataAsBytes, err := stub.GetState("requests_" + identity)
