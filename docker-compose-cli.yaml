@@ -576,7 +576,8 @@ services:
         - ./scripts:/var/hyperledger/cli/scripts/
         - /etc/localtime:/etc/localtime:ro
         - /var/run/:/host/var/run/
-        - /Users/kanattulbassiyev/gopath/:/var/hyperledger/cli/gopath/src/
+        # PUT YOUR $GOPATH
+        - ~/gopath/:/var/hyperledger/cli/gopath/src/
         - ./chaincode/lending_chaincode/:/var/hyperledger/cli/gopath/src/lending_chaincode/
     depends_on:
       - peer0.pocbank.homelend.io
