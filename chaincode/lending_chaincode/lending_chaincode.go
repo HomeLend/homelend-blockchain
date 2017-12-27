@@ -9,55 +9,75 @@ import (
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 )
 
+// REQUEST STATUSES
+const REQUEST_INITIALIZED = 1;
+const REQUEST_CREDIT_SCORE = 2;
+const REQUEST_CREDIT_SCORE_CONFIRMED = 3;
+const REQUEST_CREDIT_SCORE_DECLINED = 4;
+
+
 type HomelendChaincode struct {
 }
 
-// House chaincode
-type House struct {
-	Hash        string `json:"Hash"`
-	FlatNumber  string `json:"FlatNumber"`
-	HouseNumber string `json:"HouseNumber"`
-	Street      string `json:"Street"`
-	Amount      int    `json:"Amount"`
-	Timestamp   int    `json:"Timestamp"`
+type Property struct {
+	Hash         string `json:"Hash"`
+	Address      string `json:"Address"`
+	SellingPrice int    `json:"SellingPrice"`
+	Timestamp    int    `json:"Timestamp"`
+}
+
+type RequestStatus struct {
+	Status    int `json:"Status"`
+	Timestamp int `json:"Timestamp"`
+}
+
+type Request struct {
+	Hash         string          `json:"Hash"`
+	PropertyHash string          `json:"Name"`
+	Buyer        string          `json:"Buyer"`
+	Salary       int             `json:"TotalSupply"`
+	LoanAmount   int             `json:"LoanAmount"`
+	Status       int             `json:"Status"`
+	Statuses     []RequestStatus `json:"RequestStatuses"`
+	Timestamp    int             `json:"Timestamp"`
 }
 
 type Bank struct {
-	Hash          string `json:"Hash"`
-	Name          string `json:"Name"`
-	LicenceNumber string `json:"LicenceNumber"`
-	Address       string `json:"Address"`
-	TotalSupply   int    `json:"TotalSupply"`
-	Timestamp     int    `json:"Timestamp"`
-}
-
-type Seller struct {
-	ID          string `json:"ID"`
-	Firstname   string `json:"Firstname"`
-	Lastname    string `json:"Lastname"`
+	Hash        string `json:"Hash"`
+	Name        string `json:"Name"`
+	TotalSupply int    `json:"TotalSupply"`
 	Timestamp   int    `json:"Timestamp"`
 }
 
+type Seller struct {
+	ID        string `json:"ID"`
+	Firstname string `json:"Firstname"`
+	Lastname  string `json:"Lastname"`
+	Timestamp int    `json:"Timestamp"`
+}
+
 type Buyer struct {
-	ID         string `json:"ID"`
-	Firstname  string `json:"Firstname"`
-	Lastname   string `json:"Lastname"`
-	DocumentID string `json:"DocumentID"`
-	Timestamp  int    `json:"Timestamp"`
+	ID           string `json:"ID"`
+	Firstname    string `json:"Firstname"`
+	Lastname     string `json:"Lastname"`
+	IDNumber     string `json:"IDNumber"`
+	IDBase64     string `json:"IDBase64"`
+	SalaryBase64 string `json:"SalaryBase64"`
+	Timestamp    int    `json:"Timestamp"`
 }
 
 type Appraiser struct {
-	ID         string `json:"ID"`
-	Firstname  string `json:"Firstname"`
-	Lastname   string `json:"Lastname"`
-	Timestamp  int    `json:"Timestamp"`
+	ID        string `json:"ID"`
+	Firstname string `json:"Firstname"`
+	Lastname  string `json:"Lastname"`
+	Timestamp int    `json:"Timestamp"`
 }
 
 type InsuranceCompany struct {
-	ID         string `json:"ID"`
-	Name       string `json:"Firstname"`
-	Address    string `json:"Lastname"`
-	Timestamp  int    `json:"Timestamp"`
+	ID        string `json:"ID"`
+	Name      string `json:"Firstname"`
+	Address   string `json:"Lastname"`
+	Timestamp int    `json:"Timestamp"`
 }
 
 // Init initializes chaincode
@@ -91,10 +111,10 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 
 	if function == "query" {
 		return t.query(stub, args[0])
-	} else if function == "sell" {
-		return t.sell(stub, args)
-	} else if function == "getUserHouses" {
-		return t.getUserHouses(stub)
+	} else if function == "advertise" {
+		return t.advertise(stub, args)
+	} else if function == "getProperties" {
+		return t.getProperties(stub)
 	} else if function == "registerAsBank" {
 		return t.registerAsBank(stub, args)
 	} else if function == "registerAsSeller" {
@@ -105,7 +125,7 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	return shim.Error("Received unknown function invocation")
 }
 
-func (t *HomelendChaincode) sell(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(fmt.Sprintf("sell executed with args: %+v", args))
 
 	var err error
@@ -144,7 +164,7 @@ func (t *HomelendChaincode) sell(stub shim.ChaincodeStubInterface, args []string
 		// return shim.Error(str)
 	}
 
-	data := &House{}
+	data := &Property{}
 	err = json.Unmarshal([]byte(args[0]), data)
 	if err != nil {
 		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
@@ -162,7 +182,7 @@ func (t *HomelendChaincode) sell(stub shim.ChaincodeStubInterface, args []string
 
 	if dataAsBytes == nil {
 		fmt.Println("Does not have houses. Creating first one")
-		var arrayOfData []*House;
+		var arrayOfData []*Property;
 		arrayOfData = append(arrayOfData, data)
 
 		dataJSONasBytes, err := json.Marshal(arrayOfData)
@@ -182,7 +202,7 @@ func (t *HomelendChaincode) sell(stub shim.ChaincodeStubInterface, args []string
 		fmt.Println("Sucessfully executed");
 	} else {
 		fmt.Println("Already has houses. Appending one")
-		var arrayOfData []*House;
+		var arrayOfData []*Property;
 		err = json.Unmarshal(dataAsBytes, &arrayOfData)
 
 		if err != nil {
@@ -209,7 +229,7 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 	return shim.Success(nil);
 }
 
-func (t *HomelendChaincode) getUserHouses(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *HomelendChaincode) getProperties(stub shim.ChaincodeStubInterface) pb.Response {
 	identity, err := cid.GetID(stub)
 
 	if err != nil {
