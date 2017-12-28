@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -48,13 +47,13 @@ type Property struct {
 // Request defines buy processing and contains
 type Request struct {
 	Hash         string `json:"Hash"`
-	PropertyHash string `json:"Name"`
-	BuyerHash    string `json:"Buyer"`
-	SellerHash   string `json:"Seller"`
+	PropertyHash string `json:"PropertyHash"`
+	BuyerHash    string `json:"BuyerHash"`
+	SellerHash   string `json:"SellerHash"`
 	CreditScore  string `json:"CreditScore"`
-	Salary       int    `json:"TotalSupply"`
+	Salary       int    `json:"Salary"`
 	LoanAmount   int    `json:"LoanAmount"`
-	Status       string `json:"Status,omitempty"`
+	Status       string `json:"Status"`
 	Timestamp    int    `json:"Timestamp"`
 }
 
@@ -313,6 +312,38 @@ func (t *HomelendChaincode) putBuyerPersonalInfo(stub shim.ChaincodeStubInterfac
 		return shim.Error(str)
 	}
 
+	dataAsBytes, err := stub.GetState("requests_" + identity)
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	// -----
+	fmt.Println("Already has houses. Appending one")
+	var arrayOfData []*Request
+	err = json.Unmarshal(dataAsBytes, &arrayOfData)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to unmarshal: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	currentRequest := arrayOfData[len(arrayOfData)-1]
+	currentRequest.Status = "REQUEST_DATA_PROVIDED"
+
+	arrayOfData[len(arrayOfData)-1] = currentRequest
+
+	arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
+
+	err = stub.PutState("requests_"+identity, arrayOfDataAsBytes)
+	if err != nil {
+		str := fmt.Sprintf("Could not put state %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
 	fmt.Println("Sucessfully executed")
 
 	return shim.Success(nil)
@@ -386,14 +417,6 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 			fmt.Println(str)
 			return shim.Error(str)
 		}
-
-		bargs := make([][]byte, 1)
-		bargs[0] = dataJSONasBytes
-
-		resp := stub.InvokeChaincode("credit_score", bargs, "mainchannel")
-
-		strResult, _ := fmt.Printf("%s+", resp.Payload)
-		fmt.Println("CreditScore Result: " + strconv.Itoa(strResult))
 
 		err = stub.PutState("requests_"+identity, dataJSONasBytes)
 		if err != nil {
@@ -517,6 +540,7 @@ func (t *HomelendChaincode) getCreditScore(stub shim.ChaincodeStubInterface) pb.
 
 	strResult := string(resp.Payload)
 	latestRequest.CreditScore = strResult
+	latestRequest.Status = "REQUEST_CREDUT_SCORE_INSTALLED"
 	arrayOfData[len(arrayOfData)-1] = latestRequest
 
 	arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
@@ -548,7 +572,7 @@ func (t *HomelendChaincode) getRequestsForBuyer(stub shim.ChaincodeStubInterface
 		return shim.Error(str)
 	}
 
-	// todo: disable
+	// todo: disable§
 	if mspid != "POCBuyerMSP" {
 		str := fmt.Sprintf("Only Buyer Node can execute this method error %+v", mspid)
 		fmt.Println(str)
