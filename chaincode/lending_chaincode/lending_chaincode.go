@@ -137,6 +137,8 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 		return t.buy(stub, args)
 	} else if function == "putBuyerPersonalInfo" {
 		return t.putBuyerPersonalInfo(stub, args)
+	} else if function == "creditScore" {
+		return t.getCreditScore(stub)
 	}
 
 	// additional getters
@@ -451,26 +453,13 @@ func (t *HomelendChaincode) getProperties(stub shim.ChaincodeStubInterface) pb.R
 	return shim.Success(valAsBytes)
 }
 
-func (t *HomelendChaincode) getCreditScore(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("getCreditScore executed with args: %+v", args))
-
-	var err error
-	if len(args) != 2 {
-		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if len(args[0]) <= 0 {
-		str := fmt.Sprintf("JSON must be non-empty string %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
+func (t *HomelendChaincode) getCreditScore(stub shim.ChaincodeStubInterface) pb.Response {
+	fmt.Println(fmt.Sprintf("getCreditScore executed with args"))
 
 	mspid, err := cid.GetMSPID(stub)
 
 	if err != nil {
-		str := fmt.Sprintf("MSPID error %+v", args)
+		str := fmt.Sprintf("MSPID error %+v", err)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -478,7 +467,7 @@ func (t *HomelendChaincode) getCreditScore(stub shim.ChaincodeStubInterface, arg
 	identity, err := cid.GetID(stub)
 
 	if err != nil {
-		str := fmt.Sprintf("MSPID error %+v", args)
+		str := fmt.Sprintf("MSPID error %+v", err)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -490,7 +479,6 @@ func (t *HomelendChaincode) getCreditScore(stub shim.ChaincodeStubInterface, arg
 		// return shim.Error(str)
 	}
 
-	fmt.Println(fmt.Printf("Getting state for %+s", identity))
 	dataAsBytes, err := stub.GetState("requests_" + identity)
 	if err != nil {
 		str := fmt.Sprintf("Failed to get: %s", identity)
