@@ -49,8 +49,8 @@ type Property struct {
 type Request struct {
 	Hash         string `json:"Hash"`
 	PropertyHash string `json:"Name"`
-	Buyer        string `json:"Buyer"`
-	Seller       string `json:"Seller"`
+	BuyerHash    string `json:"Buyer"`
+	SellerHash   string `json:"Seller"`
 	CreditScore  string `json:"CreditScore"`
 	Salary       int    `json:"TotalSupply"`
 	LoanAmount   int    `json:"LoanAmount"`
