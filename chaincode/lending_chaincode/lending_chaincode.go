@@ -44,17 +44,27 @@ type Property struct {
 	Timestamp    int    `json:"Timestamp"`
 }
 
+// InsuranceOffer describes fields of offer
+type InsuranceOffer struct {
+	Hash          string `json:"Hash"`
+	InsuranceHash string `json:"InsuranceHash"`
+	Amount        string `json:"Amount"`
+	Timestamp     int    `json:"Timestamp"`
+}
+
 // Request defines buy processing and contains
 type Request struct {
-	Hash         string `json:"Hash"`
-	PropertyHash string `json:"PropertyHash"`
-	BuyerHash    string `json:"BuyerHash"`
-	SellerHash   string `json:"SellerHash"`
-	CreditScore  string `json:"CreditScore"`
-	Salary       int    `json:"Salary"`
-	LoanAmount   int    `json:"LoanAmount"`
-	Status       string `json:"Status"`
-	Timestamp    int    `json:"Timestamp"`
+	Hash            string `json:"Hash"`
+	PropertyHash    string `json:"PropertyHash"`
+	BuyerHash       string `json:"BuyerHash"`
+	SellerHash      string `json:"SellerHash"`
+	CreditScore     string `json:"CreditScore"`
+	AppraiserPrice  string `json:"AppraiserPrice"`
+	InsuranceAmount string `json:"InsuranceAmount"`
+	Salary          int    `json:"Salary"`
+	LoanAmount      int    `json:"LoanAmount"`
+	Status          string `json:"Status"`
+	Timestamp       int    `json:"Timestamp"`
 }
 
 // Bank describes fields of Bank
