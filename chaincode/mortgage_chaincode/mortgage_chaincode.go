@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
@@ -61,6 +62,9 @@ type Request struct {
 //HomelendChaincode is...
 type HomelendChaincode struct {
 }
+
+//MoneyTransferKey ...
+const MoneyTransferKey = "moneyTransfer"
 
 // Init initializes chaincode
 // ===========================
@@ -192,7 +196,13 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
-	return shim.Error("ss")
+
+	err = t.moveMoney(stub, "escrow_"+requestData.BuyerHash, requestData.SellerHash, sellerProperty.SellingPrice)
+	if err != nil {
+		return shim.Error(err.Error())
+	}
+
+	return shim.Success(nil)
 }
 
 func (t *HomelendChaincode) findHouse(stub shim.ChaincodeStubInterface, sellerID string, propertyID string) (*Property, int, []*Property, error) {
@@ -213,6 +223,79 @@ func (t *HomelendChaincode) findHouse(stub shim.ChaincodeStubInterface, sellerID
 	}
 
 	return nil, 0, nil, errors.New("Could not found property")
+}
+
+func (t *HomelendChaincode) getMoney(stub shim.ChaincodeStubInterface, userID string) int {
+
+	dataAsBytes, err := stub.GetState(userID)
+	if err != nil {
+		str := fmt.Sprintf("Could not getMoney userID=" + userID)
+		fmt.Println(str)
+		return -1
+	}
+
+	escrowMoney, err := strconv.Atoi(string(dataAsBytes))
+	if err != nil {
+		str := fmt.Sprintf("Could not getMoney - Atoi userID=" + userID)
+		fmt.Println(str)
+		return -1
+	}
+
+	return escrowMoney
+}
+
+func (t *HomelendChaincode) moveMoney(stub shim.ChaincodeStubInterface, srcUserID string, destUserID string, sum int) error {
+
+	srcMoney := t.getMoney(stub, srcUserID)
+	if srcMoney < 0 {
+		str := fmt.Sprintf("Could not get money from srcUserID" + srcUserID)
+		fmt.Println(str)
+		return errors.New(str)
+	}
+
+	destMoney := t.getMoney(stub, destUserID)
+	if srcMoney < 0 {
+		str := fmt.Sprintf("Could not get money from srcUserID" + destUserID)
+		fmt.Println(str)
+		return errors.New(str)
+	}
+
+	if srcMoney < sum {
+		str := fmt.Sprintf("not enough money in srcMoney %d and price is %d", srcMoney, sum)
+		fmt.Println(str)
+		return errors.New(str)
+	}
+
+	srcMoney -= sum
+	destMoney += sum
+
+	srcMoneyStr := strconv.Itoa(srcMoney)
+	destMoneyStr := strconv.Itoa(destMoney)
+
+	stub.PutState(srcUserID, []byte(srcMoneyStr))
+	stub.PutState(destUserID, []byte(destMoneyStr))
+
+	moneyTransferBytes, err := stub.GetState(MoneyTransferKey)
+
+	if err != nil {
+		return err
+	}
+	var moneyTransferArr []string
+	err = json.Unmarshal(moneyTransferBytes, &moneyTransferArr)
+	if err != nil {
+		return err
+	}
+
+	tx2Append := srcUserID + "_" + destUserID + "_" + strconv.Itoa(sum)
+	moneyTransferArr = append(moneyTransferArr, tx2Append)
+
+	moneyTransferBytes, err = json.Marshal(moneyTransferArr)
+	if err != nil {
+		return err
+	}
+	stub.PutState(MoneyTransferKey, moneyTransferBytes)
+
+	return nil
 }
 
 func (t *HomelendChaincode) getHouseList(stub shim.ChaincodeStubInterface, userID string) ([]*Property, error) {
