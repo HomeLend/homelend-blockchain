@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	pb "github.com/hyperledger/fabric/protos/peer"
-	"bytes"
+	// "bytes"
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
 )
 

@@ -579,6 +579,8 @@ services:
         # PUT YOUR $GOPATH
         - ~/gopath/:/var/hyperledger/cli/gopath/src/
         - ./chaincode/lending_chaincode/:/var/hyperledger/cli/gopath/src/lending_chaincode/
+        - ./chaincode/creditscore_chaincode/:/var/hyperledger/cli/gopath/src/creditscore_chaincode/
+        - ./chaincode/government_chaincode/:/var/hyperledger/cli/gopath/src/government_chaincode/
     depends_on:
       - peer0.pocbank.homelend.io
       - peer0.pocappraiser.homelend.io

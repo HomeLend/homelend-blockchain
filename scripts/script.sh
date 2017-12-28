@@ -6,7 +6,7 @@ CHANNEL_NAME="$1"
 COUNTER=1
 MAX_RETRY=5
 
-declare -a CHAINCODES=("lending_chaincode")
+declare -a CHAINCODES=("creditscore_chaincode" "government_chaincode" "lending_chaincode")
 
 echo "Channel name : "${CHANNEL_NAME}
 
@@ -14,7 +14,7 @@ echo "Channel name : "${CHANNEL_NAME}
 verifyResult () {
 	if [ $1 -ne 0 ] ; then
 		echo "!!!!!!!!!!!!!!! "$2" !!!!!!!!!!!!!!!!"
-    echo "========= ERROR !!! FAILED to execute End-2-End Scenario ==========="
+    echo "========= ERROR !!! FAILED to execute ==========="
 		echo
    		exit 1
 	fi
@@ -123,7 +123,6 @@ installChaincode () {
 	PEER=$1
 	setGlobals $PEER
 	for chaincode in ${CHAINCODES[*]}; do
-        #peer chaincode install -n $chaincode -v 1.0 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED  -p $chaincode >&log.txt
         peer chaincode install -n $chaincode -v v1 --cafile $ORDERER_CA -p $chaincode >&log.txt
         res=$?
         cat log.txt
@@ -138,57 +137,16 @@ instantiateChaincode () {
 	setGlobals $PEER
 	# while 'peer chaincode' command can get the orderer endpoint from the peer (if join was successful),
 	# lets supply it directly as we know it using the "-o" option
+    
+    for chaincode in ${CHAINCODES[*]}; do
+        echo "===================== $chaincode Instantiation on PEER$PEER on channel '$CHANNEL_NAME' is in process ===================== "
+        peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME -n $chaincode -v v1 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member', 'POCBuyerMSP.member', 'POCAppraiserMSP.member', 'POCInsuranceMSP.member')"
 
-    echo "===================== $chaincode Instantiation on PEER$PEER on channel '$CHANNEL_NAME' is in process ===================== "
-    peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME -n $CHAINCODE -v v1 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member')"
-
-	res=$?
-	cat log.txt
-	verifyResult $res "Chaincode instantiation on PEER$PEER on channel '$CHANNEL_NAME' failed"
-	echo
-}
-
-chaincodeQuery () {
-  PEER=$1
-  echo "===================== Querying on PEER$PEER on channel '$CHANNEL_NAME'... ===================== "
-  setGlobals $PEER
-  local rc=1
-  local starttime=$(date +%s)
-
-  # continue to poll
-  # we either get a successful response, or reach TIMEOUT
-  while test "$(($(date +%s)-starttime))" -lt "$TIMEOUT" -a $rc -ne 0
-  do
-     sleep 3
-     echo "Attempting to Query PEER$PEER ...$(($(date +%s)-starttime)) secs"
-     peer chaincode query -C $CHANNEL_NAME -n lending_chaincode -c --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED '{"Args":["get","hash_"]}' >&log.txt
-     #test $? -eq 0 && VALUE=$(cat log.txt | awk '/Query Result/ {print $NF}')
-     #test "$VALUE" = "$2" && let rc=0
-     let rc=0
-  done
-  echo
-  cat log.txt
-  if test $rc -eq 0 ; then
-	echo "===================== Query on PEER$PEER on channel '$CHANNEL_NAME' is successful ===================== "
-  else
-	echo "!!!!!!!!!!!!!!! Query result on PEER$PEER is INVALID !!!!!!!!!!!!!!!!"
-        echo "================== ERROR !!! FAILED to execute End-2-End Scenario =================="
-	echo
-	exit 1
-  fi
-}
-
-chaincodeInvoke () {
-	PEER=$1
-	setGlobals $PEER
-	# while 'peer chaincode' command can get the orderer endpoint from the peer (if join was successful),
-	# lets supply it directly as we know it using the "-o" option
-		peer chaincode invoke -o orderer.homelend.io:7050 --cafile $ORDERER_CA -C --tls $CORE_PEER_TLS_ENABLED  $CHANNEL_NAME -n lending_chaincode -c '{"Args":["create", "{\"Hash\":\"hash_\",\"Name\":\"Tristar\",\"PhoneNumber\":\"7777777\",\"Email\":\"company@mail.com\",\"Active\":true,\"Deleted\":true,\"Timestamp\":111}"]}' >&log.txt
-	res=$?
-	cat log.txt
-	verifyResult $res "Invoke execution on PEER$PEER failed "
-	echo "===================== Invoke transaction on PEER$PEER on channel '$CHANNEL_NAME' is successful ===================== "
-	echo
+        res=$?
+        cat log.txt
+        verifyResult $res "Chaincode instantiation on PEER$PEER on channel '$CHANNEL_NAME' failed"
+        echo
+    done
 }
 
 ## Create channel
