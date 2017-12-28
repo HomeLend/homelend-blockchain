@@ -330,7 +330,6 @@ func (t *HomelendChaincode) putBuyerPersonalInfo(stub shim.ChaincodeStubInterfac
 	}
 
 	// -----
-	fmt.Println("Already has houses. Appending one")
 	var arrayOfData []*Request
 	err = json.Unmarshal(dataAsBytes, &arrayOfData)
 
@@ -550,7 +549,7 @@ func (t *HomelendChaincode) getCreditScore(stub shim.ChaincodeStubInterface) pb.
 
 	strResult := string(resp.Payload)
 	latestRequest.CreditScore = strResult
-	latestRequest.Status = "REQUEST_CREDUT_SCORE_INSTALLED"
+	latestRequest.Status = "REQUEST_CREDIT_SCORE_INSTALLED"
 	arrayOfData[len(arrayOfData)-1] = latestRequest
 
 	arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
@@ -602,6 +601,155 @@ func (t *HomelendChaincode) getRequestsForBuyer(stub shim.ChaincodeStubInterface
 	}
 
 	return shim.Success(valAsBytes)
+}
+
+func (t *HomelendChaincode) confirmCreditScore(stub shim.ChaincodeStubInterface, response string) pb.Response {
+	fmt.Println(fmt.Sprintf("confirmCreditScore executed with args"))
+
+	mspid, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	// todo: disable
+	if mspid != "POCBuyerMSP" {
+		str := fmt.Sprintf("Only Buyer Node can execute this method error %+v", mspid)
+		fmt.Println(str)
+		// return shim.Error(str)
+	}
+
+	dataAsBytes, err := stub.GetState("requests_" + identity)
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if dataAsBytes == nil {
+		str := "Does not have requests. Can't execute credit score"
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	var arrayOfData []*Request
+	err = json.Unmarshal(dataAsBytes, &arrayOfData)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to unmarshal: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	latestRequest := arrayOfData[len(arrayOfData)-1]
+
+	bargs := make([][]byte, 1)
+	bargs[0], err = json.Marshal(latestRequest)
+
+	if err != nil {
+		str := fmt.Sprintf("Could not marshal array %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if response == "confirm" {
+		latestRequest.Status = "REQUEST_CREDIT_SCORE_CONFIRMED"
+	} else {
+		latestRequest.Status = "REQUEST_CREDIT_SCORE_DECLINED"
+	}
+	arrayOfData[len(arrayOfData)-1] = latestRequest
+
+	arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
+
+	err = stub.PutState("requests_"+identity, arrayOfDataAsBytes)
+	if err != nil {
+		str := fmt.Sprintf("Could not put state %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	return shim.Success(nil)
+}
+
+func (t *HomelendChaincode) buyerUploadDocuments(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("confirmCreditScore executed with args"))
+
+	mspid, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	// todo: disable
+	if mspid != "POCBuyerMSP" {
+		str := fmt.Sprintf("Only Buyer Node can execute this method error %+v", mspid)
+		fmt.Println(str)
+		// return shim.Error(str)
+	}
+
+	data := &Buyer{}
+	err = json.Unmarshal([]byte(args[0]), data)
+	if err != nil {
+		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	dataAsBytes, err := stub.GetState("buyers_" + identity)
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if dataAsBytes == nil {
+		str := "Does not have requests. Can't execute credit score"
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	var savedData Buyer
+	err = json.Unmarshal(dataAsBytes, &savedData)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to unmarshal: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	savedData.IDBase64 = data.IDBase64
+	savedData.SalaryBase64 = data.SalaryBase64
+
+	savedDataAsBytes, err := json.Marshal(savedData)
+
+	err = stub.PutState("buyers_"+identity, savedDataAsBytes)
+	if err != nil {
+		str := fmt.Sprintf("Could not put state %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	return shim.Success(nil)
 }
 
 func (t *HomelendChaincode) query(stub shim.ChaincodeStubInterface, queryString string) pb.Response {
