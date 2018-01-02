@@ -76,3 +76,13 @@ PeerOrgs:
         - "localhost"
     Users:
       Count: 1
+  - Name: POCCreditRatingAgency
+    Domain: poccreditratingagency.homelend.io
+    CA:
+      Hostname: ca
+    Template:
+      Count: 1
+      SANS:
+        - "localhost"
+    Users:
+      Count: 1
