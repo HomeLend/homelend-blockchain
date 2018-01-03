@@ -13,4 +13,5 @@ mkdir channel-artifacts
 ./linux_bin/configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channel-artifacts/POCGovernmentMSPanchors.tx -channelID $CHANNEL_NAME -asOrg POCGovernmentMSP
 ./linux_bin/configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channel-artifacts/POCBuyerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg POCBuyerMSP
 ./linux_bin/configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channel-artifacts/POCSellerMSPanchors.tx -channelID $CHANNEL_NAME -asOrg POCSellerMSP
+./linux_bin/configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channel-artifacts/POCCreditRatingAgencyMSPanchors.tx -channelID $CHANNEL_NAME -asOrg POCCreditRatingAgencyMSP
 ./linux_bin/configtxgen -profile MainChannel -outputAnchorPeersUpdate ./channel-artifacts/POCHomelendMSPanchors.tx -channelID $CHANNEL_NAME -asOrg POCHomelendMSP

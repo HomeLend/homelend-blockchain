@@ -14,7 +14,7 @@ DC=lending_chaincode
 peer chaincode install -n $DC -v v1 -p $CHAINCODE
 
 # Instiantiating
-peer chaincode instantiate -o orderer.homelend.io:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $DC -v v1 -c '{"Args":["init"]}' -P "OR ('POCBankMSP.member','POCSellerMSP.member', 'POCBuyerMSP.member', 'POCAppraiserMSP.member', 'POCInsuranceMSP.member')"
+peer chaincode instantiate -o orderer.homelend.io:7050 --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $DC -v v1 -c '{"Args":["init"]}' -P "OR ('POCBankMSP.member','POCSellerMSP.member', 'POCBuyerMSP.member', 'POCAppraiserMSP.member','POCCreditRatingAgencyMSP.member', 'POCInsuranceMSP.member')"
 
 # ADVERTISE
 peer chaincode invoke -o orderer.homelend.io:7050  --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n $DC -v v1 -c '{"Args":["advertise", "{\"Hash\":\"hash_\",\"Address\":\"Shahal 5\", \"SellingPrice\":100000, \"Timestamp\":111}"]}'

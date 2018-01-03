@@ -29,6 +29,7 @@ Profiles:
                     - *POCHomelend
                     - *POCSeller
                     - *POCBuyer
+                    - *POCCreditRatingAgency
     MainChannel:
         Consortium: SampleConsortium
         Application:
@@ -41,6 +42,7 @@ Profiles:
                 - *POCHomelend
                 - *POCSeller
                 - *POCBuyer
+                - *POCCreditRatingAgency
                 
 
 ################################################################################
@@ -121,6 +123,24 @@ Organizations:
             # for cross org gossip communication.  Note, this value is only
             # encoded in the genesis block in the Application section context
             - Host: peer0.pocappraiser.homelend.io
+              Port: 7051
+    - &POCCreditRatingAgency
+        # DefaultOrg defines the organization which is used in the sampleconfig
+        # of the fabric.git development environment
+        Name: POCCreditRatingAgencyMSP
+
+        # ID to load the MSP definition as
+        ID: POCCreditRatingAgencyMSP
+
+        MSPDir: crypto-config/peerOrganizations/poccreditratingagency.homelend.io/msp
+
+        AdminPrincipal: Role.ADMIN
+
+        AnchorPeers:
+            # AnchorPeers defines the location of peers which can be used
+            # for cross org gossip communication.  Note, this value is only
+            # encoded in the genesis block in the Application section context
+            - Host: peer0.poccreditratingagency.homelend.io
               Port: 7051
     - &POCGovernment
         # DefaultOrg defines the organization which is used in the sampleconfig

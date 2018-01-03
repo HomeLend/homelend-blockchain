@@ -63,6 +63,12 @@ setGlobals () {
         CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/peerOrganizations/pochomelend.homelend.io/users/Admin@pochomelend.homelend.io/msp
         CORE_PEER_ADDRESS=peer0.pochomelend.homelend.io:7051
         CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pochomelend.homelend.io/peers/peer0.pochomelend.homelend.io/tls/ca.crt
+    elif [ $1 -eq 7 ]; then
+        CORE_PEER_LOCALMSPID="POCCreditRatingAgencyMSP"
+        CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/poccreditratingagency.homelend.io/peers/peer0.poccreditratingagency.homelend.io/tls/ca.crt
+        CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/peerOrganizations/poccreditratingagency.homelend.io/users/Admin@poccreditratingagency.homelend.io/msp
+        CORE_PEER_ADDRESS=peer0.poccreditratingagency.homelend.io:7051
+        CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/poccreditratingagency.homelend.io/peers/peer0.poccreditratingagency.homelend.io/tls/ca.crt
     fi
     echo " ==================== GLOBALS =================="
     env |grep CORE
@@ -110,7 +116,7 @@ joinWithRetry () {
 }
 
 joinChannel () {
-	for ch in 0 1 2 3 4 5 6; do
+	for ch in 0 1 2 3 4 5 6 7; do
 		setGlobals $ch
 		joinWithRetry $ch
 		echo "===================== PEER$ch joined on the channel \"$CHANNEL_NAME\" ===================== "
@@ -140,7 +146,7 @@ instantiateChaincode () {
     
     for chaincode in ${CHAINCODES[*]}; do
         echo "===================== $chaincode Instantiation on PEER$PEER on channel '$CHANNEL_NAME' is in process ===================== "
-        peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME -n $chaincode -v v1 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member', 'POCBuyerMSP.member', 'POCAppraiserMSP.member', 'POCInsuranceMSP.member')"
+        peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME -n $chaincode -v v1 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member', 'POCBuyerMSP.member', 'POCAppraiserMSP.member','POCCreditRatingAgencyMSP.member', 'POCInsuranceMSP.member')"
 
         res=$?
         cat log.txt
@@ -179,6 +185,9 @@ sleep 2
 echo "Updating anchor peers for pochomelend..."
 updateAnchorPeers 6
 sleep 2
+echo "Updating anchor peers for poccreditratingagency..."
+updateAnchorPeers 7
+sleep 2
 
 echo "Installing chaincode on pocbank/peer0..."
 installChaincode 0
@@ -194,6 +203,8 @@ echo "Installing chaincode on pocseller/peer0..."
 installChaincode 5
 echo "Installing chaincode on pochomelend/peer0..."
 installChaincode 6
+echo "Installing chaincode on poccreditratingagency/peer0..."
+installChaincode 7
 
 echo "Instantiating chaincode on pocbank/peer0..."
 instantiateChaincode 0
