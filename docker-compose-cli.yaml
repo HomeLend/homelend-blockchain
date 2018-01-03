@@ -278,9 +278,6 @@ services:
           - FABRIC_CA_HOME=/var/hyperledger/ca-pocseller
           - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocseller/ca/ca.pocseller.homelend.io-cert.pem
           - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocseller/ca/a89528a4f5e40b9b67d19d9b36ae01491f921690b054854bff302aff2b0db79f_sk
-          - FABRIC_CA_SERVER_TLS_ENABLED=true
-          - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocseller/ca/ca.pocseller.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocseller/ca/a89528a4f5e40b9b67d19d9b36ae01491f921690b054854bff302aff2b0db79f_sk
         ports:
           - "13054:7054"
         command: sh -c 'fabric-ca-server start --config ./config/ca-pocseller.yaml -b admin:adminpw -d'
@@ -313,7 +310,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbank.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCBankMSP
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=false
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocbank/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocbank/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocbank/tls/ca.crt
@@ -355,7 +352,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocinsurance.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocinsurance.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCInsuranceMSP
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=false
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocinsurance/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocinsurance/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocinsurance/tls/ca.crt
@@ -396,7 +393,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocappraiser.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocappraiser.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCAppraiserMSP
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=false
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocappraiser/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocappraiser/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocappraiser/tls/ca.crt
@@ -437,7 +434,7 @@ services:
         - CORE_PEER_ADDRESS=peer0.pocgovernment.homelend.io:7051
         - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocgovernment.homelend.io:7051
         - CORE_PEER_LOCALMSPID=POCGovernmentMSP
-        - CORE_PEER_TLS_ENABLED=true
+        - CORE_PEER_TLS_ENABLED=false
         - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocgovernment/tls/server.key
         - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocgovernment/tls/server.crt
         - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocgovernment/tls/ca.crt
@@ -478,7 +475,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocbuyer.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbuyer.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCBuyerMSP
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=false
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocbuyer/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocbuyer/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocbuyer/tls/ca.crt
@@ -519,10 +516,6 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocseller.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocseller.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCSellerMSP
-      - CORE_PEER_TLS_ENABLED=true
-      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocseller/tls/server.key
-      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocseller/tls/server.crt
-      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocseller/tls/ca.crt
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCSeller:5984
@@ -560,7 +553,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.poccreditratingagency.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.poccreditratingagency.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCCreditRatingAgencyMSP
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=false
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpoccreditratingagency/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpoccreditratingagency/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpoccreditratingagency/tls/ca.crt
@@ -601,7 +594,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pochomelend.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pochomelend.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCHomelendMSP
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=false
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocseller/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocseller/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocseller/tls/ca.crt
@@ -638,7 +631,7 @@ services:
       - CORE_PEER_LOCALMSPID=POCBankMSP
       - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/users/Admin@pocbank.homelend.io/msp
       - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
-      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ENABLED=false
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/ca.crt
@@ -651,7 +644,7 @@ services:
         - /etc/localtime:/etc/localtime:ro
         - /var/run/:/host/var/run/
         # PUT YOUR $GOPATH
-        -  /home/homelend/gopath/src:/var/hyperledger/cli/gopath/src/
+        -  /home/bauyrzhan/work/src:/var/hyperledger/cli/gopath/src/
         - ./chaincode/lending_chaincode/:/var/hyperledger/cli/gopath/src/lending_chaincode/
         - ./chaincode/creditscore_chaincode/:/var/hyperledger/cli/gopath/src/creditscore_chaincode/
         - ./chaincode/government_chaincode/:/var/hyperledger/cli/gopath/src/government_chaincode/
