@@ -96,7 +96,6 @@ services:
       - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
       - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
       - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
-
     working_dir: /var/hyperledger/orderer
     command: orderer
     volumes:
@@ -111,6 +110,7 @@ services:
       - ./crypto-config/peerOrganizations/pochomelend.homelend.io/peers/peer0.pochomelend.homelend.io:/var/hyperledger/peerpochomelend
       - ./crypto-config/peerOrganizations/pocbuyer.homelend.io/peers/peer0.pocbuyer.homelend.io:/var/hyperledger/peerpocbuyer
       - ./crypto-config/peerOrganizations/pocseller.homelend.io/peers/peer0.pocseller.homelend.io:/var/hyperledger/peerpocseller
+      - ./crypto-config/peerOrganizations/poccreditratingagency.homelend.io/peers/peer0.poccreditratingagency.homelend.io:/var/hyperledger/peerpoccreditratingagency
     ports:
       - 7050:7050
 
@@ -121,10 +121,10 @@ services:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       - FABRIC_CA_HOME=/var/hyperledger/ca-pocbank
       - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocbank/ca/ca.pocbank.homelend.io-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbank/ca/92b016419f52239cf4f1241f62863bb5058b540aaa3f086d32e41cba1a3f9168_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbank/ca/dc40338e04c82579aa728e4512b8f5224897927efd5b04dd02e25f058d720c5a_sk
       - FABRIC_CA_SERVER_TLS_ENABLED=true
       - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocbank/ca/ca.pocbank.homelend.io-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbank/ca/92b016419f52239cf4f1241f62863bb5058b540aaa3f086d32e41cba1a3f9168_sk
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbank/ca/dc40338e04c82579aa728e4512b8f5224897927efd5b04dd02e25f058d720c5a_sk
     ports:
       - "7054:7054"
     command: sh -c 'fabric-ca-server start --config ./config/ca-pocbank.yaml -b admin:adminpw -d'
@@ -144,10 +144,10 @@ services:
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
       - FABRIC_CA_HOME=/var/hyperledger/ca-poccreditratingagency
       - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-poccreditratingagency/ca/ca.poccreditratingagency.homelend.io-cert.pem
-      - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-poccreditratingagency/ca/e43ba7b2548a8530ef0c46d8ccd8cda02c616dc0496c5b02ac6daf647d5df0c9_sk
+      - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-poccreditratingagency/ca/30467067ab1960c91fd298502c841e2d4434da3e6f4d4884211d57600ad52bd9_sk
       - FABRIC_CA_SERVER_TLS_ENABLED=true
       - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-poccreditratingagency/ca/ca.poccreditratingagency.homelend.io-cert.pem
-      - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-poccreditratingagency/ca/e43ba7b2548a8530ef0c46d8ccd8cda02c616dc0496c5b02ac6daf647d5df0c9_sk
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-poccreditratingagency/ca/30467067ab1960c91fd298502c841e2d4434da3e6f4d4884211d57600ad52bd9_sk
     ports:
       - "21054:21054"
     command: sh -c 'fabric-ca-server start --config ./config/ca-poccreditratingagency.yaml -b admin:adminpw -d'
@@ -167,10 +167,10 @@ services:
         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
         - FABRIC_CA_HOME=/var/hyperledger/ca-pocinsurance
         - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocinsurance/ca/ca.pocinsurance.homelend.io-cert.pem
-        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocinsurance/ca/14a6a43637c2f98dfa9167d4ae4831f362c63d6bb5ec513d92509bfae403d1d0_sk
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocinsurance/ca/95cae76a5a11581f86024f49914c3f09e92b854143ff005a80fa2bddece8ca49_sk
         - FABRIC_CA_SERVER_TLS_ENABLED=true
         - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocinsurance/ca/ca.pocinsurance.homelend.io-cert.pem
-        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocinsurance/ca/14a6a43637c2f98dfa9167d4ae4831f362c63d6bb5ec513d92509bfae403d1d0_sk
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocinsurance/ca/95cae76a5a11581f86024f49914c3f09e92b854143ff005a80fa2bddece8ca49_sk
       ports:
         - "8054:7054"
       command: sh -c 'fabric-ca-server start --config ./config/ca-pocinsurance.yaml -b admin:adminpw -d'      
@@ -189,10 +189,10 @@ services:
         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
         - FABRIC_CA_HOME=/var/hyperledger/ca-pocappraiser
         - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocappraiser/ca/ca.pocappraiser.homelend.io-cert.pem
-        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocappraiser/ca/f1d23c155b3922f6f5864be11dd4cd269a5cf6920d660809a2e556326571b0e2_sk
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocappraiser/ca/687739f13b877828e07dbd68be34431476a6a12bbfc8dd807091bf9e70adbeb8_sk
         - FABRIC_CA_SERVER_TLS_ENABLED=true
         - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocappraiser/ca/ca.pocappraiser.homelend.io-cert.pem
-        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocappraiser/ca/f1d23c155b3922f6f5864be11dd4cd269a5cf6920d660809a2e556326571b0e2_sk
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocappraiser/ca/687739f13b877828e07dbd68be34431476a6a12bbfc8dd807091bf9e70adbeb8_sk
       ports:
         - "9054:7054"
       command: sh -c 'fabric-ca-server start --config ./config/ca-pocappraiser.yaml -b admin:adminpw -d'
@@ -211,10 +211,10 @@ services:
         - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
         - FABRIC_CA_HOME=/var/hyperledger/ca-pocgovernment
         - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocgovernment/ca/ca.pocgovernment.homelend.io-cert.pem
-        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocgovernment/ca/bd0c900fa2080b1347bc9e9b056338d1ebd468fccc099efd4cf669766b501952_sk
+        - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocgovernment/ca/ec8ca1bef189c57facb38cc33ab7eac85286fcecb26f494ad4112151fe2e6647_sk
         - FABRIC_CA_SERVER_TLS_ENABLED=true
         - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocgovernment/ca/ca.pocgovernment.homelend.io-cert.pem
-        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocgovernment/ca/bd0c900fa2080b1347bc9e9b056338d1ebd468fccc099efd4cf669766b501952_sk
+        - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocgovernment/ca/ec8ca1bef189c57facb38cc33ab7eac85286fcecb26f494ad4112151fe2e6647_sk
       ports:
         - "10054:7054"
       command: sh -c 'fabric-ca-server start --config ./config/ca-pocgovernment.yaml -b admin:adminpw -d'
@@ -233,10 +233,10 @@ services:
           - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
           - FABRIC_CA_HOME=/var/hyperledger/ca-pochomelend
           - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pochomelend/ca/ca.pochomelend.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pochomelend/ca/27945366c50afe842e6a3913f07d05ade23a08b918e7cafaa4a1c56f65a1ee77_sk
+          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pochomelend/ca/cf5e8aced6ac1e52075b630f3e81cf412d6e2bfeeab0e004bbac7ced169e9ff2_sk
           - FABRIC_CA_SERVER_TLS_ENABLED=true
           - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pochomelend/ca/ca.pochomelend.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pochomelend/ca/27945366c50afe842e6a3913f07d05ade23a08b918e7cafaa4a1c56f65a1ee77_sk
+          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pochomelend/ca/cf5e8aced6ac1e52075b630f3e81cf412d6e2bfeeab0e004bbac7ced169e9ff2_sk
         ports:
           - "11054:7054"
         command: sh -c 'fabric-ca-server start --config ./config/ca-pochomelend.yaml -b admin:adminpw -d'
@@ -255,10 +255,10 @@ services:
           - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
           - FABRIC_CA_HOME=/var/hyperledger/ca-pocbuyer
           - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocbuyer/ca/ca.pocbuyer.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/27a0ab081345465be069ebd9fae979ca1bcafefbe274a20e1b67132c3542d732_sk
+          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/fbb32fe36ffd92564695f460309379285cd09673756a9f8a8d1237a0f8f8c75d_sk
           - FABRIC_CA_SERVER_TLS_ENABLED=true
           - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocbuyer/ca/ca.pocbuyer.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/27a0ab081345465be069ebd9fae979ca1bcafefbe274a20e1b67132c3542d732_sk
+          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocbuyer/ca/fbb32fe36ffd92564695f460309379285cd09673756a9f8a8d1237a0f8f8c75d_sk
         ports:
           - "12054:7054"
         command: sh -c 'fabric-ca-server start --config ./config/ca-pocbuyer.yaml -b admin:adminpw -d'
@@ -277,7 +277,10 @@ services:
           - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=homelendblockchain_default
           - FABRIC_CA_HOME=/var/hyperledger/ca-pocseller
           - FABRIC_CA_SERVER_CA_CERTFILE=/var/hyperledger/ca-pocseller/ca/ca.pocseller.homelend.io-cert.pem
-          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocseller/ca/a89528a4f5e40b9b67d19d9b36ae01491f921690b054854bff302aff2b0db79f_sk
+          - FABRIC_CA_SERVER_CA_KEYFILE=/var/hyperledger/ca-pocseller/ca/1d422b25ee98041569923756baca4d2f2f5eb955031ae90f8bf6368992cfc293_sk
+          - FABRIC_CA_SERVER_TLS_ENABLED=true
+          - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-pocseller/ca/ca.pocseller.homelend.io-cert.pem
+          - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-pocseller/ca/1d422b25ee98041569923756baca4d2f2f5eb955031ae90f8bf6368992cfc293_sk
         ports:
           - "13054:7054"
         command: sh -c 'fabric-ca-server start --config ./config/ca-pocseller.yaml -b admin:adminpw -d'
@@ -310,7 +313,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbank.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCBankMSP
-      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocbank/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocbank/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocbank/tls/ca.crt
@@ -352,7 +355,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocinsurance.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocinsurance.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCInsuranceMSP
-      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocinsurance/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocinsurance/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocinsurance/tls/ca.crt
@@ -393,7 +396,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocappraiser.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocappraiser.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCAppraiserMSP
-      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocappraiser/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocappraiser/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocappraiser/tls/ca.crt
@@ -434,7 +437,7 @@ services:
         - CORE_PEER_ADDRESS=peer0.pocgovernment.homelend.io:7051
         - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocgovernment.homelend.io:7051
         - CORE_PEER_LOCALMSPID=POCGovernmentMSP
-        - CORE_PEER_TLS_ENABLED=false
+        - CORE_PEER_TLS_ENABLED=true
         - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocgovernment/tls/server.key
         - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocgovernment/tls/server.crt
         - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocgovernment/tls/ca.crt
@@ -475,7 +478,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocbuyer.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocbuyer.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCBuyerMSP
-      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocbuyer/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocbuyer/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocbuyer/tls/ca.crt
@@ -516,6 +519,10 @@ services:
       - CORE_PEER_ADDRESS=peer0.pocseller.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pocseller.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCSellerMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocseller/tls/server.key
+      - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocseller/tls/server.crt
+      - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocseller/tls/ca.crt
       # CouchDB
       - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
       - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdbPOCSeller:5984
@@ -553,7 +560,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.poccreditratingagency.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.poccreditratingagency.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCCreditRatingAgencyMSP
-      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpoccreditratingagency/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpoccreditratingagency/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpoccreditratingagency/tls/ca.crt
@@ -594,7 +601,7 @@ services:
       - CORE_PEER_ADDRESS=peer0.pochomelend.homelend.io:7051
       - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.pochomelend.homelend.io:7051
       - CORE_PEER_LOCALMSPID=POCHomelendMSP
-      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/peerpocseller/tls/server.key
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/peerpocseller/tls/server.crt
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/peerpocseller/tls/ca.crt
@@ -631,7 +638,7 @@ services:
       - CORE_PEER_LOCALMSPID=POCBankMSP
       - CORE_PEER_MSPCONFIGPATH=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/users/Admin@pocbank.homelend.io/msp
       - CORE_PEER_ADDRESS=peer0.pocbank.homelend.io:7051
-      - CORE_PEER_TLS_ENABLED=false
+      - CORE_PEER_TLS_ENABLED=true
       - CORE_PEER_TLS_CERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/server.crt
       - CORE_PEER_TLS_KEY_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/server.key
       - CORE_PEER_TLS_ROOTCERT_FILE=/var/hyperledger/cli/crypto/peerOrganizations/pocbank.homelend.io/peers/peer0.pocbank.homelend.io/tls/ca.crt
@@ -644,7 +651,7 @@ services:
         - /etc/localtime:/etc/localtime:ro
         - /var/run/:/host/var/run/
         # PUT YOUR $GOPATH
-        -  /home/bauyrzhan/work/src:/var/hyperledger/cli/gopath/src/
+        -  /c/gopath/src:/var/hyperledger/cli/gopath/src/
         - ./chaincode/lending_chaincode/:/var/hyperledger/cli/gopath/src/lending_chaincode/
         - ./chaincode/creditscore_chaincode/:/var/hyperledger/cli/gopath/src/creditscore_chaincode/
         - ./chaincode/government_chaincode/:/var/hyperledger/cli/gopath/src/government_chaincode/
