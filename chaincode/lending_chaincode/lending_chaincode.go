@@ -40,6 +40,7 @@ type HomelendChaincode struct {
 // Property describes structure of real estate
 type Property struct {
 	Hash         string `json:"Hash"`
+	SellerHash   string `json:"SellerHash"`
 	Address      string `json:"Address"`
 	SellingPrice int    `json:"SellingPrice"`
 	Timestamp    int    `json:"Timestamp"`
@@ -161,7 +162,11 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	// additional getters
 	if function == "getProperties" {
 		return t.getProperties(stub)
-	} else if function == "query" {
+	} else if function == "pullBankOffers" {
+     		return t.pullBankOffers(stub)
+    } else if function == "selectBankOffer" {
+           		return t.selectBankOffer(stub)
+    } else if function == "query" {
 		return t.query(stub, args[0])
 	}
 
@@ -469,6 +474,31 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 }
 
 func (t *HomelendChaincode) getProperties(stub shim.ChaincodeStubInterface) pb.Response {
+	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	valAsBytes, err := stub.GetState(identity)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to get state %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	} else if valAsBytes == nil {
+		str := fmt.Sprintf("Record does not exist %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println("Successfully got")
+	return shim.Success(valAsBytes)
+}
+
+func (t *HomelendChaincode) pullBankOffers(stub shim.ChaincodeStubInterface) pb.Response {
 	identity, err := cid.GetID(stub)
 
 	if err != nil {
