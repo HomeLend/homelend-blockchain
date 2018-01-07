@@ -88,29 +88,28 @@ type Bank struct {
 
 // Seller structure describes the seller fields
 type Seller struct {
-	Hash      string `json:"Hash"`
+	FirstName string `json:"FirstName"`
+	LastName  string `json:"LastName"`
+	Email     string `json:"Email"`
 	IDNumber  string `json:"IDNumber"`
-	Firstname string `json:"Firstname"`
-	Lastname  string `json:"Lastname"`
 	Timestamp int    `json:"Timestamp"`
 }
 
 // Buyer describes fields necessary for buyer
 type Buyer struct {
-	Hash      string `json:"Hash"`
-	Firstname    string `json:"Firstname"`
-	Lastname     string `json:"Lastname"`
+	FirstName    string `json:"FirstName"`
+	LastName     string `json:"LastName"`
+	Email        string `json:"Email"`
 	IDNumber     string `json:"IDNumber"`
 	IDBase64     string `json:"IDBase64"`
-	SalaryBase64 string `json:"SalaryBase64"`
 	Timestamp    int    `json:"Timestamp"`
 }
 
 // Appraiser describes fields necessary for appraiser
 type Appraiser struct {
 	ID        string `json:"ID"`
-	Firstname string `json:"Firstname"`
-	Lastname  string `json:"Lastname"`
+	FirstName string `json:"FirstName"`
+	LastName  string `json:"LastName"`
 	Timestamp int    `json:"Timestamp"`
 }
 
