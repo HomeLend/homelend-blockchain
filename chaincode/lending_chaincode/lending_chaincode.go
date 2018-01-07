@@ -71,7 +71,9 @@ type Request struct {
 	GovernmentResult3 string           `json:"GovernmentResult3"`
 	InsuranceOffers   []InsuranceOffer `json:"InsuranceOffers"`
 	Salary            int              `json:"Salary"`
+	SalaryBase64      string           `json:"SalaryBase64"`
 	LoanAmount        int              `json:"LoanAmount"`
+	Duration          int              `json:"LoanAmount"`
 	Status            string           `json:"Status"`
 	Timestamp         int              `json:"Timestamp"`
 }
@@ -86,7 +88,8 @@ type Bank struct {
 
 // Seller structure describes the seller fields
 type Seller struct {
-	ID        string `json:"ID"`
+	Hash      string `json:"Hash"`
+	IDNumber  string `json:"IDNumber"`
 	Firstname string `json:"Firstname"`
 	Lastname  string `json:"Lastname"`
 	Timestamp int    `json:"Timestamp"`
@@ -94,7 +97,7 @@ type Seller struct {
 
 // Buyer describes fields necessary for buyer
 type Buyer struct {
-	ID           string `json:"ID"`
+	Hash      string `json:"Hash"`
 	Firstname    string `json:"Firstname"`
 	Lastname     string `json:"Lastname"`
 	IDNumber     string `json:"IDNumber"`
@@ -164,8 +167,6 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 		return t.getProperties(stub)
 	} else if function == "pullBankOffers" {
      		return t.pullBankOffers(stub)
-    } else if function == "selectBankOffer" {
-           		return t.selectBankOffer(stub)
     } else if function == "query" {
 		return t.query(stub, args[0])
 	}
