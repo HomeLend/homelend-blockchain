@@ -39,43 +39,61 @@ type HomelendChaincode struct {
 
 // Property describes structure of real estate
 type Property struct {
-	Hash         string `json:"Hash"`
-	SellerHash   string `json:"SellerHash"`
-	Address      string `json:"Address"`
-	SellingPrice int    `json:"SellingPrice"`
-	Timestamp    int    `json:"Timestamp"`
+	Hash         string     `json:"Hash"`
+	SellerHash   string     `json:"SellerHash"`
+	Address      string     `json:"Address"`
+	SellingPrice float32    `json:"SellingPrice"`
+	Timestamp    int        `json:"Timestamp"`
 }
 
 // InsuranceOffer describes fields of offer
 type InsuranceOffer struct {
-	Hash          string `json:"Hash"`
-	InsuranceHash string `json:"InsuranceHash"`
-	Amount        string `json:"Amount"`
-	Timestamp     int    `json:"Timestamp"`
+	Hash          string    `json:"Hash"`
+	InsuranceHash string    `json:"InsuranceHash"`
+	Amount        float32   `json:"Amount"`
+	Timestamp     int       `json:"Timestamp"`
 }
 
 // Request defines buy processing and contains
 type Request struct {
-	Hash              string           `json:"Hash"`
-	PropertyHash      string           `json:"PropertyHash"`
-	BuyerHash         string           `json:"BuyerHash"`
-	SellerHash        string           `json:"SellerHash"`
-	AppraiserHash     string           `json:"AppraiserHash"`
-	CreditScore       string           `json:"CreditScore"`
-	AppraiserPrice    string           `json:"AppraiserPrice"`
-	AppraiserAmount   int              `json:"AppraiserAmount"`
-	InsuranceHash     string           `json:"InsuranceHash"`
-	InsuranceAmount   string           `json:"InsuranceAmount"`
-	GovernmentResult1 string           `json:"GovernmentResult1"`
-	GovernmentResult2 string           `json:"GovernmentResult2"`
-	GovernmentResult3 string           `json:"GovernmentResult3"`
-	InsuranceOffers   []InsuranceOffer `json:"InsuranceOffers"`
-	Salary            int              `json:"Salary"`
-	SalaryBase64      string           `json:"SalaryBase64"`
-	LoanAmount        int              `json:"LoanAmount"`
-	Duration          int              `json:"LoanAmount"`
-	Status            string           `json:"Status"`
-	Timestamp         int              `json:"Timestamp"`
+	Hash                    string           `json:"Hash"`
+	PropertyHash            string           `json:"PropertyHash"`
+	BuyerHash               string           `json:"BuyerHash"`
+	SellerHash              string           `json:"SellerHash"`
+	AppraiserHash           string           `json:"AppraiserHash"`
+	AppraiserAmount         float32          `json:"AppraiserAmount"`
+	BankHash                string           `json:"BankHash"`
+    BankInterest            float32          `json:"BankInterest"`
+    BankMonthlyPayment      float32          `json:"BankMonthlyPayment"`
+	CreditScore             float32          `json:"CreditScore"`
+	InsuranceHash           string           'json:"InsuranceHash"`
+	InsuranceAmount         float32          `json:"InsuranceAmount"`
+	GovernmentResult1       string           `json:"GovernmentResult1"`
+	GovernmentResult2       string           `json:"GovernmentResult2"`
+	GovernmentResult3       string           `json:"GovernmentResult3"`
+	InsuranceOffers         []InsuranceOffer `json:"InsuranceOffers"`
+	BankOffers              []BankOffer      `json:"BankOffers"`
+	AppraiserOffers         []AppraiserOffer `json:"AppraiserOffer"`
+	Salary                  int              `json:"Salary"`
+	SalaryBase64            string           `json:"SalaryBase64"`
+	LoanAmount              int              `json:"LoanAmount"`
+	Duration                int              `json:"LoanAmount"`
+	Status                  string           `json:"Status"`
+	Timestamp               int              `json:"Timestamp"`
+}
+
+//Bank offer
+type BankOffer struct {
+	Interest        float32     `json:"Interest"`
+	MonthlyPayment  float32    `json:"MonthlyPayment"`
+	Timestamp       int        `json:"Timestamp"`
+}
+
+//Appraiser offer
+type AppraiserOffer struct {
+	AppraiserHash        string     `json:"AppraiserHash"`
+	AppraiserAmount      float32    `json:"AppraiserAmount"`
+	Timestamp            int        `json:"Timestamp"`
 }
 
 // Bank describes fields of Bank
