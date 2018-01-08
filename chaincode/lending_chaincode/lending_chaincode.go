@@ -855,7 +855,6 @@ func (t *HomelendChaincode) buyerUploadDocuments(stub shim.ChaincodeStubInterfac
 	}
 
 	savedData.IDBase64 = data.IDBase64
-	savedData.SalaryBase64 = data.SalaryBase64
 
 	savedDataAsBytes, err := json.Marshal(savedData)
 
