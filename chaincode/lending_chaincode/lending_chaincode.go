@@ -648,6 +648,108 @@ func (t *HomelendChaincode) updateInsuranceOffers(stub shim.ChaincodeStubInterfa
         return shim.Success(dataUpdatedJSONasBytes)
 }
 
+func (t *HomelendChaincode) updateGovernmentResult(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("updateGovernmentResult executed with args: %+v", args))
+
+	var err error
+	if len(args) != 4 {
+		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(args[0]) <= 0 {
+		str := fmt.Sprintf("Provide hash for the request", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(args[1]) <= 0 {
+    	str := fmt.Sprintf("Provide Result 1 for the request %+v", args[0])
+    	fmt.Println(str)
+    	return shim.Error(str)
+    }
+
+    if len(args[2]) <= 0 {
+        str := fmt.Sprintf("Provide Result 2 for the request %+v", args[0])
+        fmt.Println(str)
+        return shim.Error(str)
+    }
+
+    if len(args[3]) <= 0 {
+        str := fmt.Sprintf("Provide Result 3 for the request %+v", args[0])
+        fmt.Println(str)
+        return shim.Error(str)
+    }
+
+	mspid, err := cid.GetMSPID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	identity, err := cid.GetID(stub)
+
+	if err != nil {
+		str := fmt.Sprintf("MSPID error %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	// todo: disable
+	if mspid != "POCGovernmentMSP" {
+		str := fmt.Sprintf("Only Government Node can execute this method error %+v", mspid)
+		fmt.Println(str)
+		// return shim.Error(str)
+	}
+
+	data := &Request{}
+
+
+	fmt.Println(fmt.Printf("Getting state for %+s", identity))
+	dataAsBytes, err := stub.GetState(args[0])
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if dataAsBytes == nil {
+		str := fmt.Sprintf("Record does not exist: %s", args[0])
+        fmt.Println(str)
+        return shim.Error(str)
+	}
+	    err = json.Unmarshal(dataAsBytes, data)
+        if err != nil {
+        	str := fmt.Sprintf("Failed to parse JSON: %+v", err)
+        	fmt.Println(str)
+        	return shim.Error(str)
+        }
+
+		data.GovernmentResult1 = args[1]
+		data.GovernmentResult2 = args[2]
+		data.GovernmentResult3 = args[3]
+		dataUpdatedJSONasBytes, err := json.Marshal(data)
+
+		if err != nil {
+        	str := fmt.Sprintf("Can not marshal %+v", err.Error())
+        	fmt.Println(str)
+        	return shim.Error(str)
+        }
+
+        err = stub.PutState(args[0], dataUpdatedJSONasBytes)
+        if err != nil {
+        	str := fmt.Sprintf("Can not put state %+v", err.Error())
+        	fmt.Println(str)
+        	return shim.Error(str)
+        }
+
+        fmt.Println("Successfully updated")
+        return shim.Success(dataUpdatedJSONasBytes)
+}
+
 func (t *HomelendChaincode) putBuyerPersonalInfo(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(fmt.Sprintf("putBuyerPersonalInfo executed with args: %+v", args))
 
