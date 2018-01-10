@@ -151,7 +151,7 @@ services:
       - FABRIC_CA_SERVER_TLS_CERTFILE=/var/hyperledger/ca-poccreditratingagency/ca/ca.poccreditratingagency.homelend.io-cert.pem
       - FABRIC_CA_SERVER_TLS_KEYFILE=/var/hyperledger/ca-poccreditratingagency/ca/30467067ab1960c91fd298502c841e2d4434da3e6f4d4884211d57600ad52bd9_sk
     ports:
-      - "21054:21054"
+      - "21054:7054"
     command: sh -c 'fabric-ca-server start --config ./config/ca-poccreditratingagency.yaml -b admin:adminpw -d'
     working_dir: /var/hyperledger/ca-poccreditratingagency
     volumes:
