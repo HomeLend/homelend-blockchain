@@ -110,8 +110,7 @@ type Bank struct {
 
 // Seller structure describes the seller fields
 type Seller struct {
-	FirstName string    `json:"FirstName"`
-	LastName  string    `json:"LastName"`
+	FullName  string    `json:"FullName"`
 	Email     string    `json:"Email"`
 	IDNumber  string    `json:"IDNumber"`
 	Timestamp time.Time `json:"Timestamp"`
@@ -259,10 +258,11 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 	if mspid != "POCSellerMSP" {
 		str := fmt.Sprintf("Only Seller Node can execute this method error %+v", mspid)
 		fmt.Println(str)
-		// return shim.Error(str)
+		return shim.Error(str)
 	}
 
 	data := &Property{}
+
 	err = json.Unmarshal([]byte(args[0]), data)
 	if err != nil {
 		str := fmt.Sprintf("Failed to parse JSON: %+v", err)
@@ -270,6 +270,7 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 		return shim.Error(str)
 	}
 
+	data.SellerHash = identity
 	data.Timestamp = time.Now()
 	fmt.Println(fmt.Printf("Getting state for %+s", identity))
 	dataAsBytes, err := stub.GetState(identity)
