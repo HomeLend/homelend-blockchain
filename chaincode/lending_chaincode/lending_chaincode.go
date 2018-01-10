@@ -85,7 +85,7 @@ type Request struct {
 	Timestamp          int              `json:"Timestamp"`
 }
 
-//Bank offer
+//BankOffer is one offer from one bank
 type BankOffer struct {
 	BankHash       string    `json:"AppraiserHash"`
 	Interest       float32   `json:"Interest"`
@@ -93,7 +93,7 @@ type BankOffer struct {
 	Timestamp      time.Time `json:"Timestamp"`
 }
 
-//Appraiser offer
+//AppraiserOffer - one appraiser offer
 type AppraiserOffer struct {
 	AppraiserHash   string    `json:"AppraiserHash"`
 	AppraiserAmount float32   `json:"AppraiserAmount"`
@@ -144,7 +144,7 @@ type InsuranceCompany struct {
 	Timestamp     time.Time `json:"Timestamp"`
 }
 
-// CreditRaingAgency describes fields necessary for credit rating agency/company
+//CreditRatingAgency describes fields necessary for credit rating agency/company
 type CreditRatingAgency struct {
 	LicenseNumber string    `json:"LicenseNumber"`
 	Name          string    `json:"Name"`
@@ -212,7 +212,7 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	} else if function == "updateAppraiserOffers" {
 		return t.updateAppraiserOffers(stub, args)
 	} else if function == "getProperties4Sale" {
-		return t.getProperties4Sale(stub, args)
+		return t.getProperties4Sale(stub)
 	} else if function == "updateInsuranceOffers" {
 		return t.updateInsuranceOffers(stub, args)
 	} else if function == "query" {
@@ -321,7 +321,7 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 		}
 	}
 
-	dataAsBytes, err := stub.GetState(properties4sale)
+	dataAsBytes, err = stub.GetState(properties4sale)
 
 	if err != nil {
 		str := fmt.Sprintf("Failed to get: %s", properties4sale)
@@ -1338,7 +1338,7 @@ func (t *HomelendChaincode) getProperties4Sale(stub shim.ChaincodeStubInterface)
 		fmt.Println(str)
 		return shim.Error(str)
 	} else if valAsBytes == nil {
-		str := fmt.Sprintf("Record does not exist %s", identity)
+		str := fmt.Sprintf("Record does not exist %s", properties4sale)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
