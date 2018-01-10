@@ -118,8 +118,7 @@ type Seller struct {
 
 // Buyer describes fields necessary for buyer
 type Buyer struct {
-	FirstName string    `json:"FirstName"`
-	LastName  string    `json:"LastName"`
+	FullName  string    `json:"FullName"`
 	Email     string    `json:"Email"`
 	IDNumber  string    `json:"IDNumber"`
 	IDBase64  string    `json:"IDBase64"`
@@ -1240,7 +1239,7 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 	if mspid != "POCBuyerMSP" {
 		str := fmt.Sprintf("Only Buyer Node can execute this method error %+v", mspid)
 		fmt.Println(str)
-		// return shim.Error(str)
+		return shim.Error(str)
 	}
 
 	data := &Request{}
@@ -1303,6 +1302,7 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 		}
 	}
 
+	//TODO: need the check the the property exists
 	return shim.Success(nil)
 }
 
