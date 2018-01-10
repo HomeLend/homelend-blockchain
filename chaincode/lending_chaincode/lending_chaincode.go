@@ -38,6 +38,8 @@ import (
 type HomelendChaincode struct {
 }
 
+const properties4sale = "properties4sale"
+
 // Property describes structure of real estate
 type Property struct {
 	Hash         string     `json:"Hash"`
@@ -211,13 +213,15 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	if function == "getProperties" {
 		return t.getProperties(stub)
 	} else if function == "pullBankOffers" {
-     		return t.pullBankOffers(stub)
+        return t.pullBankOffers(stub)
     } else if function == "updateBankOffers" {
-           		return t.updateBankOffers(stub, args)
+    	return t.updateBankOffers(stub, args)
     } else if function == "updateAppraiserOffers" {
-           		return t.updateAppraiserOffers(stub, args)
+    	return t.updateAppraiserOffers(stub, args)
     } else if function == "updateInsuranceOffers" {
-           		return t.updateInsuranceOffers(stub, args)
+    	return t.updateInsuranceOffers(stub, args)
+    } else if function == "getProperties4Sale" {
+    	return t.getProperties4Sale(stub)
     } else if function == "query" {
 		return t.query(stub, args[0])
 	}
@@ -1298,6 +1302,24 @@ func (t *HomelendChaincode) getProperties(stub shim.ChaincodeStubInterface) pb.R
 		return shim.Error(str)
 	} else if valAsBytes == nil {
 		str := fmt.Sprintf("Record does not exist %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println("Successfully got")
+	return shim.Success(valAsBytes)
+}
+
+func (t *HomelendChaincode) getProperties4Sale(stub shim.ChaincodeStubInterface) pb.Response {
+
+	valAsBytes, err := stub.GetState(properties4sale)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to get state %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	} else if valAsBytes == nil {
+		str := fmt.Sprintf("Record does not exist %s", properties4sale)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
