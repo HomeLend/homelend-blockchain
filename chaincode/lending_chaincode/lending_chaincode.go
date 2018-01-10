@@ -51,7 +51,7 @@ type Property struct {
 
 // InsuranceOffer describes fields of offer
 type InsuranceOffer struct {
-	Hash         string     `json:"Hash"`
+	Hash            string    `json:"Hash"`
 	InsuranceHash   string    `json:"InsuranceHash"`
 	InsuranceAmount float32   `json:"InsuranceAmount"`
 	Timestamp       time.Time `json:"Timestamp"`
@@ -112,7 +112,6 @@ type Bank struct {
 
 // Seller structure describes the seller fields
 type Seller struct {
-    Hash      string        `json:"Hash"`
 	FirstName string        `json:"FirstName"`
 	LastName  string        `json:"LastName"`
 	Email     string        `json:"Email"`
@@ -122,7 +121,6 @@ type Seller struct {
 
 // Buyer describes fields necessary for buyer
 type Buyer struct {
-    Hash         string     `json:"Hash"`
 	FirstName    string         `json:"FirstName"`
 	LastName     string         `json:"LastName"`
 	Email        string         `json:"Email"`
@@ -133,7 +131,6 @@ type Buyer struct {
 
 // Appraiser describes fields necessary for appraiser
 type Appraiser struct {
-    Hash      string     `json:"Hash"`
 	FirstName string        `json:"FirstName"`
 	LastName  string        `json:"LastName"`
 	Email     string        `json:"Email"`
@@ -143,7 +140,6 @@ type Appraiser struct {
 
 // InsuranceCompany describes fields necessary for insurance company
 type InsuranceCompany struct {
-    Hash            string     `json:"Hash"`
 	LicenseNumber   string      `json:"LicenseNumber"`
 	Name            string      `json:"Name"`
 	Address         string      `json:"Address"`
@@ -152,7 +148,6 @@ type InsuranceCompany struct {
 
 // CreditRaingAgency describes fields necessary for credit rating agency/company
 type CreditRatingAgency struct {
-	Hash            string     `json:"Hash"`
 	LicenseNumber   string      `json:"LicenseNumber"`
 	Name            string      `json:"Name"`
 	Address         string      `json:"Address"`
@@ -276,7 +271,7 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 		fmt.Println(str)
 		return shim.Error(str)
 	}
-
+    data.SellerHash = identity
     data.Timestamp = time.Now()
 	fmt.Println(fmt.Printf("Getting state for %+s", identity))
 	dataAsBytes, err := stub.GetState(identity)
@@ -335,7 +330,7 @@ func (t *HomelendChaincode) updateBankOffers(stub shim.ChaincodeStubInterface, a
 	fmt.Println(fmt.Sprintf("updateBankOffers executed with args: %+v", args))
 
 	var err error
-	if len(args) != 5 {
+	if len(args) != 3 {
 		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
@@ -347,25 +342,19 @@ func (t *HomelendChaincode) updateBankOffers(stub shim.ChaincodeStubInterface, a
 		return shim.Error(str)
 	}
 
-	if len(args[1]) <= 0 {
-    	str := fmt.Sprintf("Provide Bank hash for the request %+v", args[0])
-    	fmt.Println(str)
-    	return shim.Error(str)
-    }
-
-    if len(args[2]) <= 0 {
+    if len(args[1]) <= 0 {
         str := fmt.Sprintf("Provide Bank Interest for the request  %+v", args[0])
         fmt.Println(str)
         return shim.Error(str)
     }
 
-    if len(args[3]) <= 0 {
+    if len(args[2]) <= 0 {
        	str := fmt.Sprintf("Provide Bank Monthly Payment for the request %+v", args[0])
        	fmt.Println(str)
        	return shim.Error(str)
     }
 
-    if len(args[4]) <= 0 {
+    if len(args[3]) <= 0 {
         str := fmt.Sprintf("Provide Bank Offer Hash for the request %+v", args[0])
         fmt.Println(str)
         return shim.Error(str)
@@ -421,19 +410,19 @@ func (t *HomelendChaincode) updateBankOffers(stub shim.ChaincodeStubInterface, a
 		if data.BankOffers != nil {
             arrayOfData=data.BankOffers
 		}
-		interest, err := strconv.ParseFloat(args[2], 32)
+		interest, err := strconv.ParseFloat(args[1], 32)
         if err != nil {
             str := fmt.Sprintf("Interest value is wrong", err)
             fmt.Println(str)
             return shim.Error(str)
         }
-        monthlyAmount, err := strconv.ParseFloat(args[3], 32)
+        monthlyAmount, err := strconv.ParseFloat(args[2], 32)
         if err != nil {
             str := fmt.Sprintf("Monthly Amount value is wrong", err)
             fmt.Println(str)
             return shim.Error(str)
         }
-		arrayOfData = append(arrayOfData,BankOffer{Hash:args[4], BankHash:args[1], Interest:float32(interest),MonthlyPayment: float32(monthlyAmount), Timestamp: time.Now()})
+		arrayOfData = append(arrayOfData,BankOffer{Hash:args[3], BankHash:identity, Interest:float32(interest),MonthlyPayment: float32(monthlyAmount), Timestamp: time.Now()})
 		data.BankOffers = arrayOfData
 		dataUpdatedJSONasBytes, err := json.Marshal(data)
 
@@ -458,7 +447,7 @@ func (t *HomelendChaincode) updateAppraiserOffers(stub shim.ChaincodeStubInterfa
 	fmt.Println(fmt.Sprintf("updateAppraiserOffers executed with args: %+v", args))
 
 	var err error
-	if len(args) != 4 {
+	if len(args) != 3 {
 		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
@@ -470,19 +459,13 @@ func (t *HomelendChaincode) updateAppraiserOffers(stub shim.ChaincodeStubInterfa
 		return shim.Error(str)
 	}
 
-	if len(args[1]) <= 0 {
-    	str := fmt.Sprintf("Provide Appraiser hash for the request %+v", args[0])
-    	fmt.Println(str)
-    	return shim.Error(str)
-    }
-
-    if len(args[2]) <= 0 {
+    if len(args[1]) <= 0 {
         str := fmt.Sprintf("Provide Appraiser Amount for the request %+v", args[0])
         fmt.Println(str)
         return shim.Error(str)
     }
 
-    if len(args[3]) <= 0 {
+    if len(args[2]) <= 0 {
             str := fmt.Sprintf("Provide Appraiser Offer Hash for the request %+v", args[0])
             fmt.Println(str)
             return shim.Error(str)
@@ -534,7 +517,7 @@ func (t *HomelendChaincode) updateAppraiserOffers(stub shim.ChaincodeStubInterfa
         	return shim.Error(str)
         }
 
-        amount, err := strconv.ParseFloat(args[2], 32)
+        amount, err := strconv.ParseFloat(args[1], 32)
         if err != nil {
             str := fmt.Sprintf("Amount value is wrong", err)
             fmt.Println(str)
@@ -546,7 +529,7 @@ func (t *HomelendChaincode) updateAppraiserOffers(stub shim.ChaincodeStubInterfa
             arrayOfData=data.AppraiserOffers
 		}
 
-		arrayOfData = append(arrayOfData,AppraiserOffer{Hash:args[3], AppraiserHash:args[1], AppraiserAmount:float32(amount), Timestamp: time.Now()})
+		arrayOfData = append(arrayOfData,AppraiserOffer{Hash:args[2], AppraiserHash:identity, AppraiserAmount:float32(amount), Timestamp: time.Now()})
 		data.AppraiserOffers = arrayOfData
 		dataUpdatedJSONasBytes, err := json.Marshal(data)
 
@@ -571,7 +554,7 @@ func (t *HomelendChaincode) updateInsuranceOffers(stub shim.ChaincodeStubInterfa
 	fmt.Println(fmt.Sprintf("updateInsuranceOffers executed with args: %+v", args))
 
 	var err error
-	if len(args) != 4 {
+	if len(args) != 3 {
 		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
@@ -583,19 +566,13 @@ func (t *HomelendChaincode) updateInsuranceOffers(stub shim.ChaincodeStubInterfa
 		return shim.Error(str)
 	}
 
-	if len(args[1]) <= 0 {
-    	str := fmt.Sprintf("Provide Insurance hash for the request %+v", args[0])
-    	fmt.Println(str)
-    	return shim.Error(str)
-    }
-
-    if len(args[2]) <= 0 {
+    if len(args[1]) <= 0 {
         str := fmt.Sprintf("Provide Insurance Amount for the request %+v", args[0])
         fmt.Println(str)
         return shim.Error(str)
     }
 
-    if len(args[3]) <= 0 {
+    if len(args[2]) <= 0 {
         str := fmt.Sprintf("Provide Insurance Offer Hash for the request %+v", args[0])
         fmt.Println(str)
         return shim.Error(str)
@@ -646,7 +623,7 @@ func (t *HomelendChaincode) updateInsuranceOffers(stub shim.ChaincodeStubInterfa
         	fmt.Println(str)
         	return shim.Error(str)
         }
-        amount, err := strconv.ParseFloat(args[2], 32)
+        amount, err := strconv.ParseFloat(args[1], 32)
         if err != nil {
             str := fmt.Sprintf("Amount value is wrong", err)
             fmt.Println(str)
@@ -657,7 +634,7 @@ func (t *HomelendChaincode) updateInsuranceOffers(stub shim.ChaincodeStubInterfa
 		if data.InsuranceOffers != nil {
             arrayOfData=data.InsuranceOffers
 		}
-		arrayOfData = append(arrayOfData,InsuranceOffer{Hash:args[3], InsuranceHash:args[1], InsuranceAmount:float32(amount), Timestamp: time.Now()})
+		arrayOfData = append(arrayOfData,InsuranceOffer{Hash:args[2], InsuranceHash:identity, InsuranceAmount:float32(amount), Timestamp: time.Now()})
 		data.InsuranceOffers = arrayOfData
 		dataUpdatedJSONasBytes, err := json.Marshal(data)
 
@@ -682,7 +659,7 @@ func (t *HomelendChaincode) updateGovernmentResult(stub shim.ChaincodeStubInterf
 	fmt.Println(fmt.Sprintf("updateGovernmentResult executed with args: %+v", args))
 
 	var err error
-	if len(args) != 4 {
+	if len(args) != 3 {
 		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
