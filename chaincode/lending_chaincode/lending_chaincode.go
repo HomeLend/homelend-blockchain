@@ -35,8 +35,6 @@ import (
 * 14 - COMPLETED / REQUEST_CREDIT_SCORE_DECLINED / REQUEST_GOVERNMENT_DECLINED
  */
 
-const properties4sale = "properties4sale"
-
 // HomelendChaincode basic struct to provide an API
 type HomelendChaincode struct {
 }
@@ -85,7 +83,7 @@ type Request struct {
 	Timestamp          int              `json:"Timestamp"`
 }
 
-//BankOffer is one offer from one bank
+//BankOffer describes fields for Bank Offer
 type BankOffer struct {
 	BankHash       string    `json:"AppraiserHash"`
 	Interest       float32   `json:"Interest"`
@@ -93,7 +91,7 @@ type BankOffer struct {
 	Timestamp      time.Time `json:"Timestamp"`
 }
 
-//AppraiserOffer - one appraiser offer
+//AppraiserOffer describes fields for Appraiser Offer
 type AppraiserOffer struct {
 	AppraiserHash   string    `json:"AppraiserHash"`
 	AppraiserAmount float32   `json:"AppraiserAmount"`
@@ -143,7 +141,7 @@ type InsuranceCompany struct {
 	Timestamp     time.Time `json:"Timestamp"`
 }
 
-//CreditRatingAgency describes fields necessary for credit rating agency/company
+// CreditRatingAgency describes fields necessary for credit rating agency/company
 type CreditRatingAgency struct {
 	LicenseNumber string    `json:"LicenseNumber"`
 	Name          string    `json:"Name"`
@@ -210,8 +208,6 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 		return t.updateBankOffers(stub, args)
 	} else if function == "updateAppraiserOffers" {
 		return t.updateAppraiserOffers(stub, args)
-	} else if function == "getProperties4Sale" {
-		return t.getProperties4Sale(stub)
 	} else if function == "updateInsuranceOffers" {
 		return t.updateInsuranceOffers(stub, args)
 	} else if function == "query" {
@@ -272,6 +268,7 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 
 	data.SellerHash = identity
 	data.Timestamp = time.Now()
+
 	fmt.Println(fmt.Printf("Getting state for %+s", identity))
 	dataAsBytes, err := stub.GetState(identity)
 	if err != nil {
@@ -315,56 +312,6 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 		arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
 
 		err = stub.PutState(identity, arrayOfDataAsBytes)
-		if err != nil {
-			str := fmt.Sprintf("Could not put state %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-	}
-
-	dataAsBytes, err = stub.GetState(properties4sale)
-
-	if err != nil {
-		str := fmt.Sprintf("Failed to get: %s", properties4sale)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	if dataAsBytes == nil {
-		fmt.Println("properties4sale Does not have houses. Creating first one")
-		var arrayOfData []*Property
-		arrayOfData = append(arrayOfData, data)
-
-		dataJSONasBytes, err := json.Marshal(arrayOfData)
-		if err != nil {
-			str := fmt.Sprintf("properties4sale Could not marshal %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		err = stub.PutState(properties4sale, dataJSONasBytes)
-		if err != nil {
-			str := fmt.Sprintf("properties4sale Could not put state %+v", err.Error())
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		fmt.Println("properties4sale Sucessfully executed")
-	} else {
-		fmt.Println("Already has houses. Appending one")
-		var arrayOfData []*Property
-		err = json.Unmarshal(dataAsBytes, &arrayOfData)
-
-		if err != nil {
-			str := fmt.Sprintf("properties4sale Failed to unmarshal: %s", err)
-			fmt.Println(str)
-			return shim.Error(str)
-		}
-
-		arrayOfData = append(arrayOfData, data)
-		arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
-
-		err = stub.PutState(properties4sale, arrayOfDataAsBytes)
 		if err != nil {
 			str := fmt.Sprintf("Could not put state %+v", err.Error())
 			fmt.Println(str)
@@ -566,7 +513,7 @@ func (t *HomelendChaincode) updateAppraiserOffers(stub shim.ChaincodeStubInterfa
 
 	amount, err := strconv.ParseFloat(args[2], 32)
 	if err != nil {
-		str := fmt.Sprintf("Amount value is wrong %+v", err.Error())
+		str := fmt.Sprintf("Amount value is wrong %+v", err)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -1322,24 +1269,6 @@ func (t *HomelendChaincode) getProperties(stub shim.ChaincodeStubInterface) pb.R
 		return shim.Error(str)
 	} else if valAsBytes == nil {
 		str := fmt.Sprintf("Record does not exist %s", identity)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	fmt.Println("Successfully got")
-	return shim.Success(valAsBytes)
-}
-
-func (t *HomelendChaincode) getProperties4Sale(stub shim.ChaincodeStubInterface) pb.Response {
-
-	valAsBytes, err := stub.GetState(properties4sale)
-
-	if err != nil {
-		str := fmt.Sprintf("Failed to get state %+v", err.Error())
-		fmt.Println(str)
-		return shim.Error(str)
-	} else if valAsBytes == nil {
-		str := fmt.Sprintf("Record does not exist %s", properties4sale)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
