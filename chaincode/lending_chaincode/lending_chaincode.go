@@ -39,6 +39,8 @@ import (
 type HomelendChaincode struct {
 }
 
+const properties4sale = "properties4sale"
+
 // Property describes structure of real estate
 type Property struct {
 	Hash         string    `json:"Hash"`
@@ -208,6 +210,8 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 		return t.updateBankOffers(stub, args)
 	} else if function == "updateAppraiserOffers" {
 		return t.updateAppraiserOffers(stub, args)
+	} else if function == "getProperties4Sale" {
+		return t.getProperties4Sale(stub)
 	} else if function == "updateInsuranceOffers" {
 		return t.updateInsuranceOffers(stub, args)
 	} else if function == "query" {
@@ -312,6 +316,56 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 		arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
 
 		err = stub.PutState(identity, arrayOfDataAsBytes)
+		if err != nil {
+			str := fmt.Sprintf("Could not put state %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+	}
+
+	dataAsBytes, err = stub.GetState(properties4sale)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", properties4sale)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if dataAsBytes == nil {
+		fmt.Println("properties4sale Does not have houses. Creating first one")
+		var arrayOfData []*Property
+		arrayOfData = append(arrayOfData, data)
+
+		dataJSONasBytes, err := json.Marshal(arrayOfData)
+		if err != nil {
+			str := fmt.Sprintf("properties4sale Could not marshal %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		err = stub.PutState(properties4sale, dataJSONasBytes)
+		if err != nil {
+			str := fmt.Sprintf("properties4sale Could not put state %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		fmt.Println("properties4sale Sucessfully executed")
+	} else {
+		fmt.Println("Already has houses. Appending one")
+		var arrayOfData []*Property
+		err = json.Unmarshal(dataAsBytes, &arrayOfData)
+
+		if err != nil {
+			str := fmt.Sprintf("properties4sale Failed to unmarshal: %s", err)
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		arrayOfData = append(arrayOfData, data)
+		arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
+
+		err = stub.PutState(properties4sale, arrayOfDataAsBytes)
 		if err != nil {
 			str := fmt.Sprintf("Could not put state %+v", err.Error())
 			fmt.Println(str)
@@ -1269,6 +1323,24 @@ func (t *HomelendChaincode) getProperties(stub shim.ChaincodeStubInterface) pb.R
 		return shim.Error(str)
 	} else if valAsBytes == nil {
 		str := fmt.Sprintf("Record does not exist %s", identity)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	fmt.Println("Successfully got")
+	return shim.Success(valAsBytes)
+}
+
+func (t *HomelendChaincode) getProperties4Sale(stub shim.ChaincodeStubInterface) pb.Response {
+
+	valAsBytes, err := stub.GetState(properties4sale)
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to get state %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	} else if valAsBytes == nil {
+		str := fmt.Sprintf("Record does not exist %s", properties4sale)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
