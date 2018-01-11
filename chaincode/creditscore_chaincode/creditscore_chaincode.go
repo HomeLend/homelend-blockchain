@@ -9,6 +9,7 @@ import (
 	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
+//HomelendChaincode xx
 type HomelendChaincode struct {
 }
 
@@ -41,9 +42,10 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 
 	fmt.Println(fmt.Printf("Access log %s %s", identity, mspid))
 
-	if function == "query" {
-		return t.query(stub, args[0], args[1])
-	}
+	// if function == "query" {
+	// }
+
+	return t.query(stub, args[0], args[1])
 
 	fmt.Println("invoke did not find func: " + function) //error
 	return shim.Error("Received unknown function invocation")
