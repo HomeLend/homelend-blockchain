@@ -146,7 +146,7 @@ instantiateChaincode () {
     
     for chaincode in ${CHAINCODES[*]}; do
         echo "===================== $chaincode Instantiation on PEER$PEER on channel '$CHANNEL_NAME' is in process ===================== "
-        peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME -n $chaincode -v v1 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member', 'POCBuyerMSP.member', 'POCAppraiserMSP.member','POCCreditRatingAgencyMSP.member', 'POCInsuranceMSP.member')"
+        peer chaincode instantiate -o orderer.homelend.io:7050 --cafile $ORDERER_CA --tls $CORE_PEER_TLS_ENABLED -C $CHANNEL_NAME -n $chaincode -v v1 -c '{"Args":["init"]}' -P "OR	('POCBankMSP.member','POCSellerMSP.member', 'POCBuyerMSP.member', 'POCAppraiserMSP.member','POCCreditRatingAgencyMSP.member', 'POCInsuranceMSP.member','POCGovernmentMSP.member')"
 
         res=$?
         cat log.txt

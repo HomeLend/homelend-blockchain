@@ -57,6 +57,7 @@ const appraiserSelected = "appraiserSelected"
 const open4InsuranceOffers = "open4InsuranceOffers"
 const pending4Government = "pending4Government"
 const pending4bankApproval = "pending4bankApproval"
+const pending4ChaincodeExecute = "pending4ChaincodeExecute"
 
 //include appraiser hash as suffix
 const pendingForAppraiserEstimation = "pendingForAppraiserEstimation_"
@@ -252,10 +253,10 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 		return t.getArray(stub, "POCGovernmentMSP", pending4Government, false)
 	} else if function == "governmentPutData" {
 		return t.governmentPutData(stub, args)
-	} else if function == "governmentPutData1" {
-		return t.governmentPutData1(stub, args)
-	} else if function == "governmentPutData2" {
-		return t.governmentPutData2(stub, args)
+	} else if function == "bankApprove" {
+		return t.bankApprove(stub, args)
+	} else if function == "bankRunChaincode" {
+		return t.bankRunChaincode(stub, args)
 	} else if function == "bankPullOpen4bankOffers" {
 		return t.getArray(stub, "POCBankMSP", open4bankOffers, false)
 	} else if function == "bankPutOffer" {
@@ -516,52 +517,6 @@ func (t *HomelendChaincode) governmentPutData(stub shim.ChaincodeStubInterface, 
 	err = t.addRequestToArray(stub, pending4bankApproval, rl)
 	if err != nil {
 		str := fmt.Sprintf("Could not addRequestToArray %+v", err.Error())
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	fmt.Println("Successfully updated")
-	return shim.Success(nil)
-}
-
-func (t *HomelendChaincode) governmentPutData1(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("updateGovernmentResult executed with args: %+v", args))
-
-	var err error
-	if len(args) != 5 {
-		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	buyerHash := args[0]
-	requestHash := args[1]
-
-	_, err = t.getIdentity(stub, "POCGovernmentMSP")
-	if err != nil {
-		str := fmt.Sprintf("getIdentity error %+v", args)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	request, err := t.getRequest(stub, buyerHash, requestHash)
-	if err != nil {
-		str := fmt.Sprintf("getRequest error %+v", err)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-	request.Status = "REQUEST_GOVERNMENT_PROVIDED"
-
-	err = t.addOrUpdateRequest(stub, request)
-	fmt.Println("Successfully updated")
-	return shim.Success(nil)
-}
-
-func (t *HomelendChaincode) governmentPutData2(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	fmt.Println(fmt.Sprintf("updateGovernmentResult executed with args: %+v", args))
-
-	if len(args) != 5 {
-		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -847,6 +802,9 @@ func (t *HomelendChaincode) insurancePutOffer(stub shim.ChaincodeStubInterface, 
 		fmt.Println(str)
 		return shim.Error(str)
 	}
+
+	rl := &RequestLink{UserHash: request.BuyerHash, RequestHash: request.Hash}
+	err = t.removeFromRequestArray(stub, open4InsuranceOffers, rl)
 	fmt.Println("Successfully updated")
 	return shim.Success(nil)
 }
@@ -992,13 +950,13 @@ func (t *HomelendChaincode) bankApprove(stub shim.ChaincodeStubInterface, args [
 	fmt.Println(fmt.Sprintf("bankApprove executed with args: %+v", args))
 
 	var err error
-	if len(args) != 4 {
+	if len(args) != 1 {
 		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
 	}
 
-	_, err = t.getIdentity(stub, "POCBankMSP")
+	bankIdentity, err := t.getIdentity(stub, "POCBankMSP")
 	if err != nil {
 		str := fmt.Sprintf("getIdentity error %+v", args)
 		fmt.Println(str)
@@ -1021,16 +979,32 @@ func (t *HomelendChaincode) bankApprove(stub shim.ChaincodeStubInterface, args [
 		return shim.Error(str)
 	}
 
-	err = t.bankValidateBeforeApprove(request)
+	validations, err := t.bankValidateBeforeApprove(request, bankIdentity)
 	if err != nil {
+		str := fmt.Sprintf("error in bankValidateBeforeApprove: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(validations) != 0 {
 		request.Status = "REQUEST_DECLINED_BY_BANK"
+		request.DeclineInfo = validations
+		err = t.addOrUpdateRequest(stub, request)
+		if err != nil {
+			if err != nil {
+				str := fmt.Sprintf("saddOrUpdateRequest - unapproved %s", err)
+				fmt.Println(str)
+				return shim.Error(str)
+			}
+		}
+
 		return shim.Success(nil)
 	}
 
-	escrowAccountKey := "escrow_" + request.BuyerHash
-	escrowMoney := t.getMoney(stub, escrowAccountKey)
-	if escrowMoney < 0 {
-		str := fmt.Sprintf("getMoney() - %s", escrowAccountKey)
+	escrowAccountKey := money + "escrow_" + request.Hash
+	err = stub.PutState(escrowAccountKey, []byte(strconv.Itoa(request.LoanAmount)))
+	if err != nil {
+		str := fmt.Sprintf("PutState %s", err)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -1045,6 +1019,20 @@ func (t *HomelendChaincode) bankApprove(stub shim.ChaincodeStubInterface, args [
 		return shim.Error(str)
 	}
 
+	err = t.removeFromRequestArray(stub, pending4bankApproval, requestLink)
+	if err != nil {
+		str := fmt.Sprintf("removeFromRequestArray %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	err = t.addRequestToArray(stub, pending4ChaincodeExecute, requestLink)
+	if err != nil {
+		str := fmt.Sprintf("addRequestToArray %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
 	fmt.Println("bankApprove -> Successfully updated")
 	return shim.Success(nil)
 }
@@ -1053,13 +1041,13 @@ func (t *HomelendChaincode) bankRunChaincode(stub shim.ChaincodeStubInterface, a
 	fmt.Println(fmt.Sprintf("bankRunChaincode executed with args: %+v", args))
 
 	var err error
-	if len(args) != 4 {
+	if len(args) != 1 {
 		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
 	}
 
-	_, err = t.getIdentity(stub, "POCBankMSP")
+	bankIdentity, err := t.getIdentity(stub, "POCBankMSP")
 	if err != nil {
 		str := fmt.Sprintf("getIdentity error %+v", args)
 		fmt.Println(str)
@@ -1068,7 +1056,7 @@ func (t *HomelendChaincode) bankRunChaincode(stub shim.ChaincodeStubInterface, a
 
 	requestLinkStr := args[0]
 	requestLink := &RequestLink{}
-	err = json.Unmarshal([]byte(requestLinkStr), requestLink)
+	err = json.Unmarshal([]byte(requestLinkStr), &requestLink)
 	if err != nil {
 		str := fmt.Sprintf("Failed to unmarshal requestLinkStr: %s", err)
 		fmt.Println(str)
@@ -1078,6 +1066,13 @@ func (t *HomelendChaincode) bankRunChaincode(stub shim.ChaincodeStubInterface, a
 	request, err := t.getRequest(stub, requestLink.UserHash, requestLink.RequestHash)
 	if err != nil {
 		str := fmt.Sprintf("Failed to getRequest: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	err = t.validateBankOwner(request, bankIdentity)
+	if err != nil {
+		str := fmt.Sprintf("validateBankOwner Failed: %s", err)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -1096,17 +1091,13 @@ func (t *HomelendChaincode) bankRunChaincode(stub shim.ChaincodeStubInterface, a
 		return shim.Error(str)
 	}
 
-	if len(dataAsBytes) <= 0 {
-		str := fmt.Sprintf("Empty properties for user: %s", request.BuyerHash)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
 	var buyerPropertylist []*Property
-	err = json.Unmarshal(dataAsBytes, &buyerPropertylist)
-	if err != nil {
-		str := fmt.Sprintf("Could not Unmarshal %+v", err.Error())
-		return shim.Error(str)
+	if len(dataAsBytes) > 0 {
+		err = json.Unmarshal(dataAsBytes, &buyerPropertylist)
+		if err != nil {
+			str := fmt.Sprintf("Could not Unmarshal %+v", err.Error())
+			return shim.Error(str)
+		}
 	}
 
 	buyerPropertylist = append(buyerPropertylist, property)
@@ -1122,7 +1113,7 @@ func (t *HomelendChaincode) bankRunChaincode(stub shim.ChaincodeStubInterface, a
 		return shim.Error(str)
 	}
 
-	err = t.moveMoney(stub, "escrow_"+request.BuyerHash, request.SellerHash, request.LoanAmount)
+	err = t.moveMoney(stub, "escrow_"+request.Hash, request.SellerHash, request.LoanAmount)
 	if err != nil {
 		str := fmt.Sprintf("Could not moveMoney %+v", err.Error())
 		return shim.Error(str)
@@ -1134,6 +1125,14 @@ func (t *HomelendChaincode) bankRunChaincode(stub shim.ChaincodeStubInterface, a
 		str := fmt.Sprintf("Could not addOrUpdateRequest %+v", err.Error())
 		return shim.Error(str)
 	}
+
+	err = t.removeFromRequestArray(stub, pending4ChaincodeExecute, requestLink)
+	if err != nil {
+		str := fmt.Sprintf("removeFromRequestArray %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
 	fmt.Println("bankRunChaincode -> Successfully updated")
 	return shim.Success(nil)
 }
@@ -1976,28 +1975,46 @@ func (t *HomelendChaincode) govResultsGetter(checkHouseOwner bool, checkLien boo
 	return result
 }
 
-func (t *HomelendChaincode) bankValidateBeforeApprove(request *Request) error {
+func (t *HomelendChaincode) bankValidateBeforeApprove(request *Request, bankIdentity string) (string, error) {
 
 	if request.GovernmentResultsData.CheckHouseOwner {
-		return errors.New("CheckHouseOwner")
+		return "", nil
 	}
 	if request.GovernmentResultsData.CheckLien {
-		return errors.New("CheckLien")
+		return "", nil
 	}
 	if request.GovernmentResultsData.CheckWarningShot {
-		return errors.New("CheckWarningShot")
+		return "", nil
 	}
 
-	if request.AppraiserAmount <= request.LoanAmount+100000 {
-		return errors.New("CheckWarningShot")
+	delta := float32(request.AppraiserAmount) * 0.1
+	if float32(request.AppraiserAmount) < (float32(request.LoanAmount) + delta) {
+		return "appraiser amount is too low for this loan", nil
 	}
 
 	if len(request.SelectedInsuranceOfferHash) == 0 {
-		return errors.New("No insurance offer was selected")
+		return "No insurance offer was selected", nil
+	}
+
+	err := t.validateBankOwner(request, bankIdentity)
+	if err != nil {
+		return "", err
+	}
+
+	return "", nil
+}
+
+func (t *HomelendChaincode) validateBankOwner(request *Request, bankIdentity string) error {
+
+	for i := 0; i < len(request.BankOffers); i++ {
+		if request.BankOffers[i].Hash == request.SelectedBankOfferHash && request.BankOffers[i].BankHash != bankIdentity {
+			return errors.New("this bank cannot approve offer that other bank created")
+		}
 	}
 
 	return nil
 }
+
 func (t *HomelendChaincode) moveMoney(stub shim.ChaincodeStubInterface, srcUserID string, destUserID string, sum int) error {
 
 	srcMoney := t.getMoney(stub, srcUserID)
@@ -2029,11 +2046,14 @@ func (t *HomelendChaincode) moveMoney(stub shim.ChaincodeStubInterface, srcUserI
 	stub.PutState(money+srcUserID, []byte(srcMoneyStr))
 	stub.PutState(money+destUserID, []byte(destMoneyStr))
 
+	return nil
+
 	moneyTransferBytes, err := stub.GetState(moneyTransferKey)
 
 	if err != nil {
 		return err
 	}
+
 	var moneyTransferArr []string
 	err = json.Unmarshal(moneyTransferBytes, &moneyTransferArr)
 	if err != nil {
@@ -2048,7 +2068,6 @@ func (t *HomelendChaincode) moveMoney(stub shim.ChaincodeStubInterface, srcUserI
 		return err
 	}
 	stub.PutState(moneyTransferKey, moneyTransferBytes)
-
 	return nil
 }
 
@@ -2096,13 +2115,10 @@ func (t *HomelendChaincode) getProperty(stub shim.ChaincodeStubInterface, userHa
 		return nil, 0, nil, err
 	}
 
-	if list != nil {
-		for i, v := range list {
-			if v.Hash == propertyHash {
-				return v, i, list, nil
-			}
+	for i := 0; i < len(list); i++ {
+		if list[i].Hash == propertyHash {
+			return list[i], i, list, nil
 		}
-		return nil, 0, nil, errors.New("Could not found property")
 	}
 
 	return nil, 0, nil, errors.New("Could not found property")
@@ -2112,10 +2128,14 @@ func (t *HomelendChaincode) getPropertyAndRemove(stub shim.ChaincodeStubInterfac
 
 	property, index, properties, err := t.getProperty(stub, userHash, propertyHash)
 	if err != nil {
-		return nil, errors.New("Failed getProperty")
+		str := fmt.Sprintf("Failed to getProperty %+v", err.Error())
+		fmt.Println(str)
+		return nil, errors.New(str)
 	}
-	properties = append(properties[:index], properties[index+1:]...)
 
+	return property, nil
+
+	properties = append(properties[:index], properties[index+1:]...)
 	propertiesArrayBytes, err := json.Marshal(properties)
 	if err != nil {
 		return nil, errors.New("Failed Marshal: properties")
@@ -2125,6 +2145,5 @@ func (t *HomelendChaincode) getPropertyAndRemove(stub shim.ChaincodeStubInterfac
 	if err != nil {
 		return nil, errors.New("Failed PutState: propertiesArrayBytes")
 	}
-
 	return property, nil
 }
