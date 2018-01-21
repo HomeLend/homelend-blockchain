@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
-
 	"time"
 
 	"github.com/hyperledger/fabric/core/chaincode/lib/cid"
@@ -82,32 +82,27 @@ type InsuranceOffer struct {
 
 // Request defines buy processing and contains
 type Request struct {
-	Hash                       string            `json:"Hash"`
-	PropertyHash               string            `json:"PropertyHash"`
-	BuyerHash                  string            `json:"BuyerHash"`
-	SellerHash                 string            `json:"SellerHash"`
-	AppraiserHash              string            `json:"AppraiserHash"`
-	AppraiserAmount            int               `json:"AppraiserAmount"`
-	BankHash                   string            `json:"BankHash"`
-	BankInterest               float32           `json:"BankInterest"`
-	BankMonthlyPayment         float32           `json:"BankMonthlyPayment"`
-	CreditScore                string            `json:"CreditScore"`
-	CreditScoreIdentity        string            `json:"CreditScoreIdentity"`
-	InsuranceHash              string            `json:"InsuranceHash"`
-	InsuranceAmount            string            `json:"InsuranceAmount"`
-	LoanAmountLeftToRefund     int               `json:"LoanAmountLeftToRefund"`
-	GovernmentResultsData      GovernmentResults `json:"GovernmentResultsData"`
-	InsuranceOffers            []InsuranceOffer  `json:"InsuranceOffers"`
-	BankOffers                 []BankOffer       `json:"BankOffers"`
-	SelectedBankOfferHash      string            `json:"SelectedBankOfferHash"`
-	SelectedInsuranceOfferHash string            `json:"SelectedInsuranceOfferHash"`
-	Salary                     int               `json:"Salary"`
-	SalaryBase64               string            `json:"SalaryBase64"`
-	LoanAmount                 int               `json:"LoanAmount"`
-	Duration                   int               `json:"Duration"`
-	Status                     string            `json:"Status"`
-	DeclineInfo                string            `json:"DeclineInfo"`
-	Timestamp                  time.Time         `json:"Timestamp"`
+	Hash                       string             `json:"Hash"`
+	PropertyHash               string             `json:"PropertyHash"`
+	BuyerHash                  string             `json:"BuyerHash"`
+	SellerHash                 string             `json:"SellerHash"`
+	AppraiserHash              string             `json:"AppraiserHash"`
+	AppraiserAmount            int                `json:"AppraiserAmount"`
+	CreditScore                string             `json:"CreditScore"`
+	CreditScoreIdentity        string             `json:"CreditScoreIdentity"`
+	LoanAmountLeftToRefund     int                `json:"LoanAmountLeftToRefund"`
+	GovernmentResultsData      *GovernmentResults `json:"GovernmentResultsData"`
+	InsuranceOffers            []InsuranceOffer   `json:"InsuranceOffers"`
+	BankOffers                 []BankOffer        `json:"BankOffers"`
+	SelectedBankOfferHash      string             `json:"SelectedBankOfferHash"`
+	SelectedInsuranceOfferHash string             `json:"SelectedInsuranceOfferHash"`
+	Salary                     int                `json:"Salary"`
+	SalaryBase64               string             `json:"SalaryBase64"`
+	LoanAmount                 int                `json:"LoanAmount"`
+	Duration                   int                `json:"Duration"`
+	Status                     string             `json:"Status"`
+	DeclineInfo                string             `json:"DeclineInfo"`
+	Timestamp                  time.Time          `json:"Timestamp"`
 }
 
 //GovernmentResults - The results from the government
@@ -129,7 +124,7 @@ type BankOffer struct {
 	Hash           string    `json:"Hash"`
 	BankHash       string    `json:"BankHash"`
 	Interest       float32   `json:"Interest"`
-	MonthlyPayment float32   `json:"MonthlyPayment"`
+	MonthlyPayment float64   `json:"MonthlyPayment"`
 	Timestamp      time.Time `json:"Timestamp"`
 }
 
@@ -451,6 +446,14 @@ func (t *HomelendChaincode) advertise(stub shim.ChaincodeStubInterface, args []s
 			return shim.Error(str)
 		}
 
+		for i := 0; i < len(arrayOfData); i++ {
+			if arrayOfData[i].Hash == data.Hash {
+				str := fmt.Sprintf("proprty already exists in properties4sale hash: %s : %s", data.Hash, err)
+				fmt.Println(str)
+				return shim.Error(str)
+			}
+		}
+
 		arrayOfData = append(arrayOfData, data)
 		arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
 
@@ -497,7 +500,7 @@ func (t *HomelendChaincode) governmentPutData(stub shim.ChaincodeStubInterface, 
 		return shim.Error(str)
 	}
 
-	request.GovernmentResultsData = *t.govResultsGetter(checkHouseOwner, checkLien, checkWarningShot)
+	request.GovernmentResultsData = t.govResultsGetter(checkHouseOwner, checkLien, checkWarningShot)
 	request.Status = "REQUEST_GOVERNMENT_PROVIDED"
 
 	err = t.addOrUpdateRequest(stub, request)
@@ -865,7 +868,7 @@ func (t *HomelendChaincode) bankPutOffer(stub shim.ChaincodeStubInterface, args 
 	fmt.Println(fmt.Sprintf("bankPutOffer executed with args: %+v", args))
 
 	var err error
-	if len(args) != 4 {
+	if len(args) != 3 {
 		str := fmt.Sprintf("Incorrect number of arguments %d.", len(args))
 		fmt.Println(str)
 		return shim.Error(str)
@@ -894,11 +897,6 @@ func (t *HomelendChaincode) bankPutOffer(stub shim.ChaincodeStubInterface, args 
 		fmt.Println(str)
 		return shim.Error(str)
 	}
-	if len(args[3]) <= 0 {
-		str := fmt.Sprintf("Provide Bank Monthly Payment for the request %+v", args[0])
-		fmt.Println(str)
-		return shim.Error(str)
-	}
 
 	requestLinkStr := args[0]
 	requestLink := &RequestLink{}
@@ -917,18 +915,18 @@ func (t *HomelendChaincode) bankPutOffer(stub shim.ChaincodeStubInterface, args 
 		return shim.Error(str)
 	}
 
-	monthlyPayment, err := strconv.ParseFloat(args[3], 32)
-	if err != nil {
-		str := fmt.Sprintf("monthlyPayment args[3] - invalid input %+v", args[0])
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	offer := &BankOffer{BankHash: identity, Hash: hash, Interest: float32(interest), MonthlyPayment: float32(monthlyPayment), Timestamp: time.Now()}
+	offer := &BankOffer{BankHash: identity, Hash: hash, Interest: float32(interest), Timestamp: time.Now()}
 
 	request, err := t.getRequest(stub, requestLink.UserHash, requestLink.RequestHash)
 	if err != nil {
 		str := fmt.Sprintf("Failed to getRequest: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	offer.MonthlyPayment, err = t.calcPmt(float64(interest), request.Duration, float64(request.LoanAmount))
+	if err != nil {
+		str := fmt.Sprintf("Failed calcPmt: %s", err)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -1367,8 +1365,6 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 	data.BuyerHash = identity
 	data.Timestamp = time.Now()
 
-	//TODO: check if the property exists (also it will validate that the seller's hash match the property hash)
-
 	fmt.Println(fmt.Printf("Getting state for %+s", identity))
 	err = t.addOrUpdateRequest(stub, data)
 	if err != nil {
@@ -1378,6 +1374,47 @@ func (t *HomelendChaincode) buy(stub shim.ChaincodeStubInterface, args []string)
 	}
 	rl := &RequestLink{UserHash: identity, RequestHash: data.Hash}
 	t.addRequestToArray(stub, creditRankOpenRequests, rl)
+
+	//check if the property exists and remove from array
+	dataAsBytes, err := stub.GetState(properties4sale)
+	var properties4saleArray []*Property
+
+	if err != nil {
+		str := fmt.Sprintf("Failed to get: %s", properties4sale)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	err = json.Unmarshal(dataAsBytes, &properties4saleArray)
+	if err != nil {
+		str := fmt.Sprintf("properties4sale Failed to unmarshal: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	proptyIndex := -1
+	for i := 0; i < len(properties4saleArray); i++ {
+		if properties4saleArray[i].Hash == data.PropertyHash && properties4saleArray[i].SellerHash == data.SellerHash {
+			proptyIndex = i
+		}
+	}
+
+	if proptyIndex < 0 {
+		str := fmt.Sprintf("propery does not exists in properties4sale array hash: %s sellerHash: %s", data.PropertyHash, data.SellerHash)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	properties4saleArray = append(properties4saleArray[:proptyIndex], properties4saleArray[proptyIndex+1:]...)
+
+	dataAsBytes, err = json.Marshal(properties4saleArray)
+	if err != nil {
+		str := fmt.Sprintf("properties4sale Failed to Marshal again: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+	stub.PutState(properties4sale, dataAsBytes)
+
 	return shim.Success([]byte(identity))
 }
 
@@ -1726,6 +1763,14 @@ func (t *HomelendChaincode) addRequestToArray(stub shim.ChaincodeStubInterface, 
 			return errors.New(str)
 		}
 
+		for i := 0; i < len(arrayOfData); i++ {
+			if arrayOfData[i].UserHash == data.UserHash && arrayOfData[i].RequestHash == data.RequestHash {
+				str := fmt.Sprintf("item already exists in array: %s : %s", key, err)
+				fmt.Println(str)
+				return errors.New(str)
+			}
+		}
+
 		arrayOfData = append(arrayOfData, data)
 		arrayOfDataAsBytes, err := json.Marshal(arrayOfData)
 		if err != nil {
@@ -1914,9 +1959,9 @@ func (t *HomelendChaincode) getArray(stub shim.ChaincodeStubInterface, msp strin
 		fmt.Println(str)
 		return shim.Error(str)
 	} else if valAsBytes == nil {
-		str := fmt.Sprintf("Record does not exist %s", properties4sale)
+		str := fmt.Sprintf("Record does not exist %s", arrayName)
 		fmt.Println(str)
-		return shim.Error(str)
+		return shim.Success(nil)
 	}
 
 	fmt.Println("Successfully got " + creditRankOpenRequests)
@@ -2121,7 +2166,7 @@ func (t *HomelendChaincode) getProperty(stub shim.ChaincodeStubInterface, userHa
 		}
 	}
 
-	return nil, 0, nil, errors.New("Could not found property")
+	return nil, 0, nil, errors.New("Could not found property: " + propertyHash + "in property array of user" + userHash)
 }
 
 func (t *HomelendChaincode) getPropertyAndRemove(stub shim.ChaincodeStubInterface, userHash string, propertyHash string) (*Property, error) {
@@ -2132,8 +2177,6 @@ func (t *HomelendChaincode) getPropertyAndRemove(stub shim.ChaincodeStubInterfac
 		fmt.Println(str)
 		return nil, errors.New(str)
 	}
-
-	return property, nil
 
 	properties = append(properties[:index], properties[index+1:]...)
 	propertiesArrayBytes, err := json.Marshal(properties)
@@ -2146,4 +2189,24 @@ func (t *HomelendChaincode) getPropertyAndRemove(stub shim.ChaincodeStubInterfac
 		return nil, errors.New("Failed PutState: propertiesArrayBytes")
 	}
 	return property, nil
+}
+
+func (t *HomelendChaincode) calcPmt(yearlyInterestRate float64, totalNumberOfMonths int, loanAmount float64) (float64, error) {
+	fmt.Println("calcPmt", yearlyInterestRate, totalNumberOfMonths, loanAmount)
+	if yearlyInterestRate > 100 || yearlyInterestRate < 0 {
+		return 0, errors.New("invalid: interest")
+	}
+
+	if totalNumberOfMonths < 1 || totalNumberOfMonths > 500 {
+		return 0, errors.New("invalid: duration")
+	}
+
+	if loanAmount < 1 || loanAmount > 100000000 {
+		return 0, errors.New("invalid: loanAmount")
+	}
+
+	rate := yearlyInterestRate / 100 / 12
+	denominator := math.Pow((1+rate), float64(totalNumberOfMonths)) - 1
+	result := (rate + (rate / denominator)) * loanAmount
+	return result, nil
 }
