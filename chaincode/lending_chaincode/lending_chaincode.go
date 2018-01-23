@@ -940,6 +940,13 @@ func (t *HomelendChaincode) bankPutOffer(stub shim.ChaincodeStubInterface, args 
 		return shim.Error(str)
 	}
 
+	err = t.removeFromRequestArray(stub, open4bankOffers, requestLink)
+	if err != nil {
+		str := fmt.Sprintf("Failed to removeFromRequestArray: %s", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
 	fmt.Println("BankOffer -> Successfully updated")
 	return shim.Success(nil)
 }
