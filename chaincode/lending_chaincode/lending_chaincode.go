@@ -80,6 +80,21 @@ type InsuranceOffer struct {
 	Timestamp       time.Time `json:"Timestamp"`
 }
 
+//AppraiserPullResultItem - the data of an asset that the appraiser gets every time he pulls data
+type AppraiserPullResultItem struct {
+	BuyerHash    string    `json:"BuyerHash"`
+	RequestHash  string    `json:"RequestHash"`
+	PropertyItem *Property `json:"PropertyItem"`
+}
+
+//InsurancePullResultItem - the data of an asset that the insurance gets every time he pulls data
+type InsurancePullResultItem struct {
+	BuyerHash    string    `json:"BuyerHash"`
+	RequestHash  string    `json:"RequestHash"`
+	LoanAmount   int       `json:"LoanAmount"`
+	PropertyItem *Property `json:"PropertyItem"`
+}
+
 // Request defines buy processing and contains
 type Request struct {
 	Hash                       string             `json:"Hash"`
@@ -241,7 +256,7 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	} else if function == "getRequestInfo" {
 		return t.getRequestForSpecificPlayer(stub, args[0], args[1])
 	} else if function == "appraiserPullPendingRequests" {
-		return t.getArray(stub, "POCAppraiserMSP", pendingForAppraiserEstimation, true)
+		return t.appraiserPullPendingRequests(stub, args)
 	} else if function == "buyerGetMyRequests" {
 		return t.getArray(stub, "POCBuyerMSP", requests, true)
 	} else if function == "governmentPullPending" {
@@ -265,7 +280,7 @@ func (t *HomelendChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 	} else if function == "getProperties4Sale" {
 		return t.getArray(stub, "POCBuyerMSP", properties4sale, false)
 	} else if function == "insuranceGetOpenRequests" {
-		return t.getArray(stub, "POCInsuranceMSP", open4InsuranceOffers, false)
+		return t.insurancePullPendingRequests(stub, args)
 	} else if function == "query" {
 		return t.query(stub, args[0])
 	}
@@ -689,6 +704,71 @@ func (t *HomelendChaincode) appraiserProvideAmount(stub shim.ChaincodeStubInterf
 	return shim.Success(nil)
 }
 
+func (t *HomelendChaincode) appraiserPullPendingRequests(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("appraiserPullPendingRequests executed with args %+v", args))
+
+	identity, err := t.getIdentity(stub, "POCAppraiserMSP")
+	if err != nil {
+		str := fmt.Sprintf("error getIdentity %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	myPendingByteArray, err := stub.GetState(pendingForAppraiserEstimation + identity)
+	if err != nil {
+		str := fmt.Sprintf("faild to getState pendingForAppraiserEstimation + identity %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(myPendingByteArray) == 0 {
+		return shim.Success(nil)
+	}
+
+	var myPending []*RequestLink
+	err = json.Unmarshal(myPendingByteArray, &myPending)
+	if err != nil {
+		str := fmt.Sprintf("Failed to Unmarshal myPendingByteArray: %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	var result []*AppraiserPullResultItem
+	for i := 0; i < len(myPending); i++ {
+		userHash := myPending[i].UserHash
+		requestHash := myPending[i].RequestHash
+		request, err := t.getRequest(stub, userHash, requestHash)
+		if err != nil {
+			str := fmt.Sprintf("Failed to getRequest %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		property, _, _, err := t.getProperty(stub, request.SellerHash, request.PropertyHash)
+		if err != nil {
+			str := fmt.Sprintf("Failed to getProperty %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		item2Add := &AppraiserPullResultItem{BuyerHash: userHash, RequestHash: requestHash, PropertyItem: property}
+		result = append(result, item2Add)
+	}
+
+	if len(result) == 0 {
+		return shim.Success(nil)
+	}
+
+	dataJSONasBytes, err := json.Marshal(result)
+	if err != nil {
+		str := fmt.Sprintf("Could not marshal result %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	return shim.Success(dataJSONasBytes)
+}
+
 //insurance
 func (t *HomelendChaincode) putInsuranceCompanyInfo(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Println(fmt.Sprintf("putInsuranceCompanyInfo executed with args: %+v", args))
@@ -806,10 +886,73 @@ func (t *HomelendChaincode) insurancePutOffer(stub shim.ChaincodeStubInterface, 
 		return shim.Error(str)
 	}
 
-	rl := &RequestLink{UserHash: request.BuyerHash, RequestHash: request.Hash}
-	err = t.removeFromRequestArray(stub, open4InsuranceOffers, rl)
 	fmt.Println("Successfully updated")
 	return shim.Success(nil)
+}
+
+func (t *HomelendChaincode) insurancePullPendingRequests(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	fmt.Println(fmt.Sprintf("insurancePullPendingRequests executed with args %+v", args))
+
+	_, err := t.getIdentity(stub, "POCInsuranceMSP")
+	if err != nil {
+		str := fmt.Sprintf("error getIdentity %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	myPendingByteArray, err := stub.GetState(open4InsuranceOffers)
+	if err != nil {
+		str := fmt.Sprintf("faild to getState pendingForAppraiserEstimation + identity %+v", args)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	if len(myPendingByteArray) == 0 {
+		return shim.Success(nil)
+	}
+
+	var myPending []*RequestLink
+	err = json.Unmarshal(myPendingByteArray, &myPending)
+	if err != nil {
+		str := fmt.Sprintf("Failed to Unmarshal myPendingByteArray: %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	var result []*InsurancePullResultItem
+	for i := 0; i < len(myPending); i++ {
+		userHash := myPending[i].UserHash
+		requestHash := myPending[i].RequestHash
+		request, err := t.getRequest(stub, userHash, requestHash)
+		if err != nil {
+			str := fmt.Sprintf("Failed to getRequest %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		property, _, _, err := t.getProperty(stub, request.SellerHash, request.PropertyHash)
+		if err != nil {
+			str := fmt.Sprintf("Failed to getProperty %+v", err.Error())
+			fmt.Println(str)
+			return shim.Error(str)
+		}
+
+		item2Add := &InsurancePullResultItem{BuyerHash: userHash, RequestHash: requestHash, PropertyItem: property, LoanAmount: request.LoanAmount}
+		result = append(result, item2Add)
+	}
+
+	if len(result) == 0 {
+		return shim.Success(nil)
+	}
+
+	dataJSONasBytes, err := json.Marshal(result)
+	if err != nil {
+		str := fmt.Sprintf("Could not marshal result %+v", err.Error())
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+
+	return shim.Success(dataJSONasBytes)
 }
 
 //Bank
@@ -936,13 +1079,6 @@ func (t *HomelendChaincode) bankPutOffer(stub shim.ChaincodeStubInterface, args 
 	err = t.addOrUpdateRequest(stub, request)
 	if err != nil {
 		str := fmt.Sprintf("Failed to addOrUpdateRequest: %s", err)
-		fmt.Println(str)
-		return shim.Error(str)
-	}
-
-	err = t.removeFromRequestArray(stub, open4bankOffers, requestLink)
-	if err != nil {
-		str := fmt.Sprintf("Failed to removeFromRequestArray: %s", err)
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -1556,7 +1692,7 @@ func (t *HomelendChaincode) buyerSelectAppraiser(stub shim.ChaincodeStubInterfac
 
 	err = t.addRequestToArray(stub, pendingForAppraiserEstimation+appraiserHash, rl)
 	if err != nil {
-		str := fmt.Sprintf("Could not addRequestToArray open4bankOffers %+v", err.Error())
+		str := fmt.Sprintf("Could not addRequestToArray pendingForAppraiserEstimation %+v", err.Error())
 		fmt.Println(str)
 		return shim.Error(str)
 	}
@@ -1612,7 +1748,18 @@ func (t *HomelendChaincode) buyerSelectInsuranceOffer(stub shim.ChaincodeStubInt
 	}
 
 	rl := &RequestLink{UserHash: request.BuyerHash, RequestHash: request.Hash}
-	t.addRequestToArray(stub, pending4Government, rl)
+	err = t.addRequestToArray(stub, pending4Government, rl)
+	if err != nil {
+		str := fmt.Sprintf("error: addRequestToArray:pending4Government  %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
+	err = t.removeFromRequestArray(stub, open4InsuranceOffers, rl)
+	if err != nil {
+		str := fmt.Sprintf("error: removeFromRequestArray:open4InsuranceOffers  %+v", err)
+		fmt.Println(str)
+		return shim.Error(str)
+	}
 	return shim.Success(nil)
 }
 
@@ -1971,7 +2118,7 @@ func (t *HomelendChaincode) getArray(stub shim.ChaincodeStubInterface, msp strin
 		return shim.Success(nil)
 	}
 
-	fmt.Println("Successfully got " + creditRankOpenRequests)
+	fmt.Println("Successfully got")
 	return shim.Success(valAsBytes)
 }
 
@@ -2100,27 +2247,27 @@ func (t *HomelendChaincode) moveMoney(stub shim.ChaincodeStubInterface, srcUserI
 
 	return nil
 
-	moneyTransferBytes, err := stub.GetState(moneyTransferKey)
+	// moneyTransferBytes, err := stub.GetState(moneyTransferKey)
 
-	if err != nil {
-		return err
-	}
+	// if err != nil {
+	// 	return err
+	// }
 
-	var moneyTransferArr []string
-	err = json.Unmarshal(moneyTransferBytes, &moneyTransferArr)
-	if err != nil {
-		return err
-	}
+	// var moneyTransferArr []string
+	// err = json.Unmarshal(moneyTransferBytes, &moneyTransferArr)
+	// if err != nil {
+	// 	return err
+	// }
 
-	tx2Append := srcUserID + "_" + destUserID + "_" + strconv.Itoa(sum)
-	moneyTransferArr = append(moneyTransferArr, tx2Append)
+	// tx2Append := srcUserID + "_" + destUserID + "_" + strconv.Itoa(sum)
+	// moneyTransferArr = append(moneyTransferArr, tx2Append)
 
-	moneyTransferBytes, err = json.Marshal(moneyTransferArr)
-	if err != nil {
-		return err
-	}
-	stub.PutState(moneyTransferKey, moneyTransferBytes)
-	return nil
+	// moneyTransferBytes, err = json.Marshal(moneyTransferArr)
+	// if err != nil {
+	// 	return err
+	// }
+	// stub.PutState(moneyTransferKey, moneyTransferBytes)
+	// return nil
 }
 
 func (t *HomelendChaincode) getMoney(stub shim.ChaincodeStubInterface, userID string) int {
