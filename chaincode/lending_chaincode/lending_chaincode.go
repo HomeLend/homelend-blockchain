@@ -2305,14 +2305,14 @@ func (t *HomelendChaincode) govResultsGetter(checkHouseOwner bool, checkLien boo
 
 func (t *HomelendChaincode) bankValidateBeforeApprove(request *Request, bankIdentity string) (string, error) {
 
-	if request.GovernmentResultsData.CheckHouseOwner {
-		return "", nil
+	if !request.GovernmentResultsData.CheckHouseOwner {
+		return "CheckHouseOwner is false", nil
 	}
-	if request.GovernmentResultsData.CheckLien {
-		return "", nil
+	if !request.GovernmentResultsData.CheckLien {
+		return "CheckLien is false", nil
 	}
-	if request.GovernmentResultsData.CheckWarningShot {
-		return "", nil
+	if !request.GovernmentResultsData.CheckWarningShot {
+		return "CheckWarningShot is false", nil
 	}
 
 	delta := float32(request.AppraiserAmount) * 0.1
